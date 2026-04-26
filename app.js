@@ -282,7 +282,11 @@ async function uploadImage(dataUrl, path) {
 
 // Create a new game session in Firebase
 window.generateCode = async () => {
+    console.log("🎲 generateCode starting... myUID:", myUID);
+    if (!myUID && db.auth.uid) myUID = db.auth.uid;
+    
     if (!myUID) {
+        console.warn("⚠️ No UID found, attempting to wait for auth...");
         alert(t("Lūdzu uzgaidiet — notiek autentifikācija.", "Please wait — authenticating."));
         return;
     }
@@ -664,10 +668,11 @@ const routes = {
 let currentRoute = 'timeline';
 
 function navigate(route, addToHistory = true) {
-    if (!db.auth) {
+    if (route === 'auth' || !db.auth || !db.auth.uid) {
         document.getElementById('auth-guard').classList.remove('hidden');
         document.getElementById('main-shell').classList.add('hidden');
         renderAuth(document.getElementById('auth-guard'));
+        currentRoute = 'auth';
         return;
     }
 
@@ -680,6 +685,10 @@ function navigate(route, addToHistory = true) {
             route = 'onboarding';
         }
     }
+
+    // Ensure main shell is visible if we have auth and not on auth page
+    document.getElementById('auth-guard').classList.add('hidden');
+    document.getElementById('main-shell').classList.remove('hidden');
 
     currentRoute = route;
     if (db) db.currentRoute = route;
@@ -2977,7 +2986,11 @@ window.renderGoalsModal = () => {
     if (!window.goalsSelectedYear) window.goalsSelectedYear = new Date().getFullYear();
     const selYear = window.goalsSelectedYear;
 
-    const ICON_EMOJIS = {
+    const ICON_EMOJIS = db.kidsMode ? {
+        'fa-star': '⭐', 'fa-book': '📚', 'fa-bicycle': '🚲', 'fa-gamepad': '🎮',
+        'fa-broom': '🧹', 'fa-brush': '🎨', 'fa-apple-whole': '🍎', 'fa-football': '⚽',
+        'fa-music': '🎵', 'fa-paw': '🐾', 'fa-school': '🏫'
+    } : {
         'fa-heart': '❤️', 'fa-baby': '👶', 'fa-house': '🏠', 'fa-dog': '🐶',
         'fa-cat': '🐱', 'fa-ring': '💍', 'fa-plane': '✈️', 'fa-car': '🚗',
         'fa-piggy-bank': '💰', 'fa-gift': '🎁', 'fa-star': '⭐'
@@ -3036,7 +3049,7 @@ window.renderGoalsModal = () => {
 
     const popupHtml = `
         <div style="padding:5px;">
-            <h2 style="font-size:1.5rem; font-weight:800; text-align:center; margin-bottom:1.5rem; letter-spacing:-0.5px; color:var(--text-main);">${t('Mūsu Lielie Mērķi', 'Our Big Goals')}</h2>
+            <h2 style="font-size:1.5rem; font-weight:800; text-align:center; margin-bottom:1.5rem; letter-spacing:-0.5px; color:var(--text-main);">${db.kidsMode ? t('Bērna apņemšanās', 'Child commitments') : t('Mūsu Lielie Mērķi', 'Our Big Goals')}</h2>
 
             <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:1.5rem; scrollbar-width:none;">
                 ${yearTabsHtml}
@@ -3047,16 +3060,16 @@ window.renderGoalsModal = () => {
             </div>
 
             <div style="background:var(--bg-panel); padding:20px; border-radius:20px; border:1px solid var(--glass-border);">
-                <h4 style="margin-bottom:14px; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('Pievienot jaunu mērķi', 'Add new goal')}</h4>
+                <h4 style="margin-bottom:14px; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${db.kidsMode ? t('Pievienot jaunu apņemšanos', 'Add new commitment') : t('Pievienot jaunu mērķi', 'Add new goal')}</h4>
                 <div style="display:flex; gap:10px; margin-bottom:14px;">
                     <select id="goalIconSel" class="input-field" style="width:65px; padding:10px 5px; text-align:center; font-size:1.3rem; border-radius:14px;">
                         ${iconOptions}
                     </select>
-                    <input type="text" id="goalTitleInput" class="input-field" placeholder="${t('Piem., Kopīgs mājoklis', 'E.g., Our own house')}" style="flex:1; padding:12px 14px; border-radius:14px;">
+                    <input type="text" id="goalTitleInput" class="input-field" placeholder="${db.kidsMode ? t('Piem., Sakārtot istabu', 'E.g., Tidy my room') : t('Piem., Kopīgs mājoklis', 'E.g., Our own house')}" style="flex:1; padding:12px 14px; border-radius:14px;">
                 </div>
                 <input type="hidden" id="goalYearSel" value="${selYear}">
                 <button class="btn-primary" style="border-radius:14px; padding:14px;" onclick="addGoal()">
-                    <i class="fa-solid fa-plus" style="margin-right:6px;"></i> ${t('Pievienot Mērķi', 'Add Goal')}
+                    <i class="fa-solid fa-plus" style="margin-right:6px;"></i> ${db.kidsMode ? t('Pievienot apņemšanos', 'Add Commitment') : t('Pievienot Mērķi', 'Add Goal')}
                 </button>
             </div>
         </div>
@@ -3084,7 +3097,7 @@ window.addGoal = () => {
         date: new Date().toISOString()
     });
 
-    db.history.unshift({ id: Date.now(), date: new Date().toISOString(), title: `Jauns attiecību mērķis: ${title}`, points: 0 });
+    db.history.unshift({ id: Date.now(), date: new Date().toISOString(), title: db.kidsMode ? `Jauna apņemšanās: ${title}` : `Jauns attiecību mērķis: ${title}`, points: 0 });
     saveDB();
     renderGoalsModal();
     if (currentRoute === 'timeline') renderTimeline(document.getElementById('app-content'));
