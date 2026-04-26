@@ -332,6 +332,7 @@ window.generateCode = async () => {
         
         db.auth.gameId = gameId;
         db.auth.role = 'host';
+        db.linkCode = code; // SAVE THE CODE HERE
         saveDBLocal();
         
         attachGameListener(gameId);
@@ -456,6 +457,7 @@ function attachGameListener(gameId) {
         if (!meta) return;
 
         db.auth.connected = meta.status === 'active';
+        if (db.auth.connected) db.linkCode = null; // Clear code once connected
         db.relationship_start = meta.relationship_start;
         saveDBLocal();
         updateConnectionStatus(isFirebaseConnected && !!myUID);
