@@ -116,12 +116,13 @@ window.logout = async () => {
     showLoading(t("Izrakstās...", "Logging out..."));
     try {
         // Attempt sign out but don't block on it
-        firebaseAuth.signOut().catch(e => console.warn("SignOut failed", e));
+        await firebaseAuth.signOut();
     } catch (err) {}
     
     localStorage.removeItem(STORE_KEY);
     // Force a clean state before reload
     db = { lang: db.lang || 'lv', photos: [], coupons: [], history: [], goals: [], magnets: [], auth: { uid: null } };
+    localStorage.setItem('forceAuth', 'true');
     setTimeout(() => location.reload(), 300);
 };
 
@@ -162,6 +163,14 @@ function initFirebaseAuth() {
                 handlePostLogin();
             }
         } else {
+            // Check if user intentionally logged out
+            if (localStorage.getItem('forceAuth') === 'true') {
+                console.log("📍 User logged out intentionally, redirecting to Auth.");
+                localStorage.removeItem('forceAuth');
+                navigate('auth');
+                return;
+            }
+
             // Automatic Anonymous Sign-in for consistent UID on startup
             console.log("📍 Signing in anonymously...");
             try {
@@ -1174,6 +1183,7 @@ window.resetAppData = () => {
     if (confirm(t('Dzēst visus datus? Jūsu konts un dati Firebase netiks dzēsti, bet šī sesija tiks pārtraukta.', 'Delete all data? Your Firebase account won\'t be deleted, but this session will be cleared.'))) {
         localStorage.clear();
         db = { lang: 'lv', photos: [], coupons: [], history: [], goals: [], magnets: [], auth: { uid: null } };
+        localStorage.setItem('forceAuth', 'true');
         location.href = location.pathname; // Hard reload
     }
 };
@@ -2597,8 +2607,9 @@ function renderTimeline(container) {
     const partAvatar = db.auth.partnerAvatar;
 
     let goalsHtml = '';
+    const emptyGoalsText = db.kidsMode ? t('Vēl neesat izvirzījuši šī gada mērķus.', 'No goals set for this year yet.') : t('Vēl neesat izvirzījuši attiecību mērķus.', 'No relationship goals yet.');
     if (!db.goals || db.goals.length === 0) {
-        goalsHtml = `<div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; width:100%; text-align:center; padding:12px 0; opacity:0.7;"><i class="fa-solid fa-flag" style="margin-right:6px;"></i>${t('Vēl neesat izvirzījuši attiecību mērķus.', 'No relationship goals yet.')}</div>`;
+        goalsHtml = `<div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; width:100%; text-align:center; padding:12px 0; opacity:0.7;"><i class="fa-solid fa-flag" style="margin-right:6px;"></i>${emptyGoalsText}</div>`;
     } else {
         db.goals.forEach(g => {
             if (g.achieved) {
@@ -2628,7 +2639,7 @@ function renderTimeline(container) {
                                 <i class="fa-solid fa-palette"></i>
                             </div>
                         </div>
-                        <p style="margin:0; color:var(--text-muted);">${t('Jūsu mīlas stāsts', 'Your love story')}</p>
+                        <p style="margin:0; color:var(--text-muted);">${db.kidsMode ? t('Mūsu komanda', 'Our family team') : t('Jūsu mīlas stāsts', 'Your love story')}</p>
                     </div>
                 </div>
             </div>
@@ -2642,6 +2653,20 @@ function renderTimeline(container) {
                    </div>
 
                    <div class="dash-stats-grid">
+                       ${db.kidsMode ? `
+                       <div class="dash-stat-col">
+                           <h2>${totalPoints}</h2>
+                           <p>${t('Punkti', 'Points')}</p>
+                       </div>
+                       <div class="dash-stat-col">
+                           <h2>${myCompletedTaskCount}</h2>
+                           <p>${t('Uzdevumi', 'Tasks')}</p>
+                       </div>
+                       <div class="dash-stat-col">
+                           <h2>${db.magnets ? db.magnets.length : 0}</h2>
+                           <p>${t('Magnēti', 'Magnets')}</p>
+                       </div>
+                       ` : `
                        <div class="dash-stat-col">
                            <h2>${timeStats.years}</h2>
                            <p>${t('Gadi', 'Years')}</p>
@@ -2654,6 +2679,7 @@ function renderTimeline(container) {
                            <h2>${timeStats.days}</h2>
                            <p>${t('Dienas', 'Days')}</p>
                        </div>
+                       `}
                    </div>
                </div>
 
