@@ -2632,60 +2632,90 @@ window.manageGoals = () => {
 };
 
 window.renderGoalsModal = () => {
+    if (!window.goalsSelectedYear) window.goalsSelectedYear = new Date().getFullYear();
+    const selYear = window.goalsSelectedYear;
+
+    const ICON_EMOJIS = {
+        'fa-heart': '❤️', 'fa-baby': '👶', 'fa-house': '🏠', 'fa-dog': '🐶',
+        'fa-cat': '🐱', 'fa-ring': '💍', 'fa-plane': '✈️', 'fa-car': '🚗',
+        'fa-piggy-bank': '💰', 'fa-gift': '🎁', 'fa-star': '⭐'
+    };
+
+    // Collect all relevant years
+    const allYears = new Set();
+    const curYear = new Date().getFullYear();
+    for (let i = 0; i <= 5; i++) allYears.add(curYear + i);
+    if (db.goals) db.goals.forEach(g => { if (g.year) allYears.add(Number(g.year)); });
+    const sortedYears = [...allYears].sort();
+
+    const yearTabsHtml = sortedYears.map(y => `
+        <button onclick="window.goalsSelectedYear=${y}; renderGoalsModal();"
+            style="padding:8px 20px; border-radius:20px; border:none; font-size:0.85rem; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; white-space:nowrap; flex-shrink:0;
+            ${y === selYear
+                ? 'background:var(--text-main); color:var(--bg-primary); box-shadow:0 2px 8px rgba(0,0,0,0.15);'
+                : 'background:var(--color-secondary); color:var(--text-muted);'
+            }">${y}</button>
+    `).join('');
+
+    // Filter goals by selected year
+    const yearGoals = (db.goals || []).filter(g => Number(g.year) === selYear);
+
     let listHtml = '';
-    if (!db.goals || db.goals.length === 0) {
-        listHtml = `<div class="text-center" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">${t('Nekas vēl nav pievienots.', 'Nothing added yet.')}</div>`;
+    if (yearGoals.length === 0) {
+        listHtml = `<div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding:2.5rem 1rem;">
+            <i class="fa-solid fa-bullseye" style="font-size:2.5rem; opacity:0.2; display:block; margin-bottom:1rem;"></i>
+            ${t('Nav mērķu šim gadam. Pievieno pirmo!', 'No goals for this year. Add your first!')}
+        </div>`;
     } else {
-        db.goals.forEach(g => {
-            const checkIcon = g.achieved ? 'fa-solid fa-circle-check text-green' : 'fa-regular fa-circle text-muted';
-            const textStyle = g.achieved ? 'text-decoration:line-through; opacity:0.6;' : 'font-weight:700;';
+        yearGoals.forEach(g => {
+            const emoji = ICON_EMOJIS[g.icon] || '🎯';
+            const done = g.achieved;
             listHtml += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f4f4f5; padding:10px 15px; border-radius:12px; margin-bottom:10px;">
-                    <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="toggleGoal(${g.id})">
-                        <i class="${checkIcon}" style="font-size:1.2rem;"></i>
-                        <span style="${textStyle} font-size:0.95rem;"><i class="fa-solid ${g.icon}" style="margin-right:5px; opacity:0.7;"></i> ${g.title}${g.year ? ` (` + g.year + `)` : ""}</span>
+                <div style="display:flex; align-items:center; gap:14px; background:var(--bg-panel); padding:14px 16px; border-radius:16px; margin-bottom:10px; border:1px solid var(--glass-border); ${done ? 'opacity:0.5;' : ''}">
+                    <div onclick="toggleGoal(${g.id})" style="cursor:pointer; font-size:1.4rem; flex-shrink:0; width:32px; text-align:center;">
+                        ${done
+                            ? '<i class="fa-solid fa-circle-check" style="color:#34C759; font-size:1.3rem;"></i>'
+                            : '<i class="fa-regular fa-circle" style="color:var(--text-muted); font-size:1.3rem;"></i>'
+                        }
                     </div>
-                    <div style="color:#ff3b30; cursor:pointer; padding:5px;" onclick="deleteGoal(${g.id})"><i class="fa-solid fa-trash"></i></div>
-                </div>
-            `;
+                    <div style="flex:1; min-width:0; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.3rem;">${emoji}</span>
+                        <span style="font-weight:700; font-size:0.95rem; color:var(--text-main); ${done ? 'text-decoration:line-through;' : ''}">${g.title}</span>
+                    </div>
+                    <button onclick="deleteGoal(${g.id})" style="background:none; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; padding:8px; opacity:0.4;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>`;
         });
     }
 
+    // Icon picker options
+    const iconOptions = Object.entries(ICON_EMOJIS).map(([val, em]) => `<option value="${val}">${em}</option>`).join('');
+
     const popupHtml = `
-        <div style="padding:10px;">
-            <h2 class="view-title" style="font-size:1.4rem; margin-bottom:1.5rem; text-align:center;">${t('Mūsu Lielie Mērķi', 'Our Big Goals')}</h2>
+        <div style="padding:5px;">
+            <h2 style="font-size:1.5rem; font-weight:800; text-align:center; margin-bottom:1.5rem; letter-spacing:-0.5px; color:var(--text-main);">${t('Mūsu Lielie Mērķi', 'Our Big Goals')}</h2>
+
+            <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:1.5rem; scrollbar-width:none;">
+                ${yearTabsHtml}
+            </div>
 
             <div style="max-height:40vh; overflow-y:auto; margin-bottom:1.5rem;">
                 ${listHtml}
             </div>
 
-            <div style="background:#fff; padding:15px; border-radius:16px; box-shadow:0 0 10px rgba(0,0,0,0.05);">
-                <h4 style="margin-bottom:10px; font-size:0.9rem;">${t('Pievienot citu', 'Add new')}</h4>
-                <div style="display:flex; gap:5px; margin-bottom:10px; align-items: center;">
-                    <select id="goalIconSel" class="input-field" style="width:60px; padding:0; text-align:center;">
-                        <option value="fa-heart">❤️</option>
-                        <option value="fa-baby">👶</option>
-                        <option value="fa-house">🏠</option>
-                        <option value="fa-dog">🐶</option>
-                        <option value="fa-cat">🐱</option>
-                        <option value="fa-ring">💍</option>
-                        <option value="fa-plane">✈️</option>
-                        <option value="fa-car">🚗</option>
-                        <option value="fa-piggy-bank">💰</option>
-                        <option value="fa-gift">🎁</option>
-                        <option value="fa-star">⭐️</option>
+            <div style="background:var(--bg-panel); padding:20px; border-radius:20px; border:1px solid var(--glass-border);">
+                <h4 style="margin-bottom:14px; font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">${t('Pievienot jaunu mērķi', 'Add new goal')}</h4>
+                <div style="display:flex; gap:10px; margin-bottom:14px;">
+                    <select id="goalIconSel" class="input-field" style="width:65px; padding:10px 5px; text-align:center; font-size:1.3rem; border-radius:14px;">
+                        ${iconOptions}
                     </select>
-                    <input type="text" id="goalTitleInput" class="input-field" placeholder="${t('Piem., Kopīgs mājoklis', 'E.g., Our own house')}" style="flex:1; padding: 0 10px;">
-                    <select id="goalYearSel" class="input-field" style="width:80px; padding:0 5px;">
-                        ${(() => {
-                            let opts = '';
-                            const cur = new Date().getFullYear();
-                            for (let i = 0; i <= 10; i++) opts += `<option value="${cur + i}">${cur + i}</option>`;
-                            return opts;
-                        })()}
-                    </select>
+                    <input type="text" id="goalTitleInput" class="input-field" placeholder="${t('Piem., Kopīgs mājoklis', 'E.g., Our own house')}" style="flex:1; padding:12px 14px; border-radius:14px;">
                 </div>
-                <button class="btn-primary" onclick="addGoal()">${t('Pievienot Mērķi', 'Add Goal')}</button>
+                <input type="hidden" id="goalYearSel" value="${selYear}">
+                <button class="btn-primary" style="border-radius:14px; padding:14px;" onclick="addGoal()">
+                    <i class="fa-solid fa-plus" style="margin-right:6px;"></i> ${t('Pievienot Mērķi', 'Add Goal')}
+                </button>
             </div>
         </div>
     `;
@@ -2693,6 +2723,7 @@ window.renderGoalsModal = () => {
     closeOverlays();
     showOverlay(popupHtml);
 };
+
 
 window.addGoal = () => {
     const title = document.getElementById('goalTitleInput').value.trim();
