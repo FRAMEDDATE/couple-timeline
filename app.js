@@ -882,10 +882,6 @@ function renderAuth(container) {
             </div>
 
             <div style="flex:1;"></div>
-
-            <button class="btn-secondary danger-text animate-fade-in" style="animation-delay:0.5s; border:none; background:transparent; color:#ff6b6b; margin-top:2rem; font-size:0.85rem;" onclick="if(confirm('${t('Vai tiešām vēlaties dzēst visus datus?', 'Are you sure you want to delete all data?')}')) { localStorage.removeItem('framed_date_db'); location.reload(); }">
-                <i class="fa-solid fa-trash"></i> ${t('Sākt no nulles (Dzēst datus)', 'Reset all data')}
-            </button>
         </div>
     `;
 }
