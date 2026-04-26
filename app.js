@@ -69,9 +69,11 @@ let isSyncingFromFirebase = false;
 window.t = (lv, en) => { return (db && db.lang === 'en') ? en : lv; };
 
 window.setLang = (l) => {
+    if (db.lang === l) return;
     db.lang = l;
     saveDB();
     updateSharedUI();
+    if (typeof currentRoute !== 'undefined') navigate(currentRoute);
 };
 
 window.toggleDarkMode = () => {

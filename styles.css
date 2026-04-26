@@ -86,8 +86,9 @@
     --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.06);
     --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.12);
     --bg-panel: #FFFFFF;
-    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-bg: #FFFFFF;
     --input-border: rgba(0, 0, 0, 0.1);
+    --input-text: #1D1D1F;
 }
 
 /* Dark Mode Overrides */
@@ -103,6 +104,7 @@
     --bg-panel: #1D1D1F; /* Distinct grey surface */
     --input-bg: rgba(255, 255, 255, 0.06);
     --input-border: rgba(255, 255, 255, 0.15);
+    --input-text: #FFFFFF;
     --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.5);
     --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.7);
 }
@@ -316,7 +318,7 @@ button {
     background: var(--input-bg);
     font-family: var(--font-body);
     font-size: 1.05rem;
-    color: var(--text-main);
+    color: var(--input-text);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
