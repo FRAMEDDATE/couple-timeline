@@ -899,10 +899,12 @@ window.login = async () => {
 
             if (currentUser && currentUser.isAnonymous) {
                 await currentUser.linkWithCredential(credential);
-                console.log("✅ Anonymous account linked to email");
+                await currentUser.sendEmailVerification();
+                console.log("✅ Anonymous account linked to email and verification sent");
             } else {
-                await firebaseAuth.createUserWithEmailAndPassword(email, pass);
-                console.log("✅ New permanent account created");
+                const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, pass);
+                await userCredential.user.sendEmailVerification();
+                console.log("✅ New permanent account created and verification email sent");
             }
             
             // Set initial profile
