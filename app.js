@@ -347,18 +347,22 @@ window.generateCode = async () => {
 };
 
 // Join an existing game session
-window.joinCouple = async () => {
-    const input = document.getElementById('joinCodeInput')?.value.trim();
+window.joinCouple = async (directCode = null) => {
+    const input = directCode || document.getElementById('joinCodeInput')?.value.trim();
     if (!input || input.length !== 6) {
         alert(t("Ievadi 6 ciparu kodu.", "Enter 6 digit code."));
         return;
     }
 
-    if (!myUID) return;
+    if (!myUID) {
+        console.warn("⚠️ Join skipped: myUID is null");
+        return;
+    }
 
     showLoading(t("Savienojas...", "Connecting..."));
 
     try {
+        console.log("🔗 Attempting to join with code:", input);
         // 1. Resolve Code to GameID
         const codeSnap = await firebaseDB.ref(`codes/${input}`).once('value');
         if (!codeSnap.exists()) {
@@ -392,25 +396,24 @@ window.joinCouple = async () => {
             return;
         }
 
-        // 3. Update Session & User
+        // 3. Update Session & User (Only data we have permission for)
         const updates = {};
         updates[`games/${gameId}/metadata/clientUid`] = myUID;
         updates[`games/${gameId}/metadata/status`] = 'active';
         updates[`games/${gameId}/metadata/connected`] = true;
+        
+        // Update ONLY our own user session
         updates[`users/${myUID}/session`] = {
             gameId: gameId,
             role: 'client',
             onboardingFinished: true,
             connected: true
         };
-        // Also update host's session status in user node
-        updates[`users/${gameData.metadata.hostUid}/session/connected`] = true;
-        updates[`users/${gameData.metadata.hostUid}/session/onboardingFinished`] = true;
 
         await firebaseDB.ref().update(updates);
 
-        // 4. Cleanup Code (optional, but good for security/reuse)
-        await firebaseDB.ref(`codes/${input}`).remove();
+        // 4. Cleanup Code
+        await firebaseDB.ref(`codes/${input}`).remove().catch(e => console.warn("Code cleanup failed", e));
 
         db.auth.gameId = gameId;
         db.auth.role = 'client';
@@ -422,7 +425,7 @@ window.joinCouple = async () => {
         navigate('timeline');
         console.log("✅ Joined game successfully");
     } catch (err) {
-        console.error("❌ Join error:", err);
+        console.error("❌ Join error details:", err);
         alert(t("Kļūda pievienojoties!", "Error joining!"));
     } finally {
         hideLoading();
@@ -430,10 +433,8 @@ window.joinCouple = async () => {
 };
 
 window.autoJoin = (input) => {
-    if (document.getElementById('joinCodeInput')) {
-        document.getElementById('joinCodeInput').value = input;
-        window.joinCouple();
-    }
+    console.log("🚀 autoJoin triggered with:", input);
+    window.joinCouple(input);
 };
 
 /* ==================================
@@ -1743,7 +1744,7 @@ window.handleDeepLinks = () => {
     if (joinCode) {
         window.history.replaceState({}, document.title, window.location.pathname);
         if (!db.auth) {
-            sessionStorage.setItem('pendingJoin', joinCode);
+            localStorage.setItem('pendingJoin', joinCode);
         } else if (!db.auth.linked) {
             setTimeout(() => {
                 if (document.getElementById('joinCodeInput')) {
