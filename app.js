@@ -1422,11 +1422,30 @@ function renderRewards(container) {
                 title: 'NEZINĀMS', category: 'NOSLĒPUMS', task: 'Šī magnēta dati nav atrasti datubāzē.'
             };
 
-            if (m.unlocked) {
+            if (m.completed && m.photoId) {
+                // Completed magnet — show photo thumbnail
+                const photo = db.photos.find(p => p.id === m.photoId);
+                const thumbSrc = photo ? (photo.imageUrl || photo.dataUrl) : 'assets/magnet_open.png';
+                magnetsHtml += `
+                <div style="width:100%; aspect-ratio: 628/1000; border-radius:12px; position:relative; overflow:hidden; box-shadow:0 10px 20px rgba(0,0,0,0.15); cursor:pointer;" onclick="zoomMagnet(${m.id})">
+                    <img src="${thumbSrc}" style="width:100%; height:100%; object-fit:cover;" alt="">
+                    <div style="position:absolute; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(transparent, rgba(0,0,0,0.7));">
+                        <div style="font-size:0.7rem; font-weight:800; color:white; text-transform:uppercase; letter-spacing:1px;">${data.title}</div>
+                    </div>
+                    <div style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:#34C759; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-check" style="color:white; font-size:0.6rem;"></i>
+                    </div>
+                </div>`;
+            } else if (m.unlocked) {
+                // Unlocked but not completed — show magnet card
                 magnetsHtml += `
                 <div style="width:100%; aspect-ratio: 628/1000; background-image:url('assets/magnet_open.png'); background-size:cover; background-position:center; border-radius:12px; position:relative; overflow:hidden; box-shadow:0 10px 20px rgba(0,0,0,0.15); cursor:pointer;" onclick="zoomMagnet(${m.id})">
+                    <div style="position:absolute; bottom:8px; left:8px; right:8px; text-align:center;">
+                        <span style="background:rgba(255,90,126,0.9); color:white; font-size:0.65rem; font-weight:700; padding:4px 10px; border-radius:10px;">📸 ${t('Pievieno foto', 'Add photo')}</span>
+                    </div>
                 </div>`;
             } else {
+                // Locked magnet
                 magnetsHtml += `
                 <div style="width:100%; aspect-ratio: 628/1000; background-image:url('assets/magnet_open.png'); background-size:cover; background-position:center; border-radius:12px; position:relative; overflow:hidden; box-shadow:0 10px 20px rgba(0,0,0,0.15);">
                     <div id="magnet-overlay-${m.id}" style="position:absolute; top:0; left:0; width:100%; height:100%; background-image:url('assets/magnet_scratch.png'); background-size:cover; background-position:center; z-index:1;"></div>
@@ -1490,8 +1509,48 @@ window.zoomMagnet = (id) => {
 
     const data = MAGNET_CATALOG[mag.code] || { title: 'NEZINĀMS', category: 'NOSLĒPUMS', task: '...' };
 
+    // STATE: Completed with photo — show the memory
+    if (mag.completed && mag.photoId) {
+        const photo = db.photos.find(p => p.id === mag.photoId);
+        if (photo) {
+            const imgSrc = photo.imageUrl || photo.dataUrl;
+            const dateStr = new Date(mag.completedAt || photo.id).toLocaleDateString(db.lang === 'en' ? 'en-US' : 'lv-LV', { year: 'numeric', month: 'long', day: 'numeric' });
+            const zoomHtml = `
+                <div class="magnet-zoom-overlay animate-fade-in" id="magnet-zoom" onclick="if(event.target===this) closeMagnetZoom()">
+                    <button class="zoom-close-btn" onclick="closeMagnetZoom()"><i class="fa-solid fa-xmark"></i></button>
+                    <div style="width:90%; max-width:420px; animation: magnet-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                        <div style="border-radius:24px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.5); background:var(--bg-panel);">
+                            <img src="${imgSrc}" style="width:100%; aspect-ratio:1; object-fit:cover; display:block;" alt="">
+                            <div style="padding:20px;">
+                                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                    <div style="width:8px; height:8px; border-radius:50%; background:#34C759;"></div>
+                                    <span style="font-size:0.75rem; font-weight:700; color:#34C759; text-transform:uppercase; letter-spacing:1px;">${t('Izpildīts', 'Completed')}</span>
+                                </div>
+                                <h3 style="font-size:1.2rem; font-weight:800; color:var(--text-main); margin-bottom:4px; letter-spacing:-0.3px;">${data.title}</h3>
+                                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:8px;">${data.category}</p>
+                                <p style="font-size:0.95rem; color:var(--text-main); line-height:1.5; margin-bottom:12px; white-space:pre-wrap;">${photo.title || data.task}</p>
+                                <p style="font-size:0.8rem; color:var(--text-muted); margin:0;"><i class="fa-regular fa-calendar" style="margin-right:6px;"></i>${dateStr}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', zoomHtml);
+            return;
+        }
+    }
+
+    // STATE: Unlocked but not completed — show task + add photo button
+    const addPhotoBtn = mag.unlocked ? `
+        <div style="padding:0 20px 20px; text-align:center;">
+            <button onclick="closeMagnetZoom(); addMagnetPhoto(${mag.id});" style="background:linear-gradient(135deg,#FF5A7E,#C084FC); color:white; border:none; padding:14px 24px; border-radius:16px; font-weight:700; font-size:0.95rem; font-family:inherit; cursor:pointer; width:100%; box-shadow:0 4px 15px rgba(255,90,126,0.3);">
+                <i class="fa-solid fa-camera" style="margin-right:8px;"></i>${t('Pievienot foto (Uzdevums izpildīts!)', 'Add photo (Task completed!)')}
+            </button>
+        </div>
+    ` : '';
+
     const zoomHtml = `
-        <div class="magnet-zoom-overlay animate-fade-in" id="magnet-zoom">
+        <div class="magnet-zoom-overlay animate-fade-in" id="magnet-zoom" onclick="if(event.target===this) closeMagnetZoom()">
             <button class="zoom-close-btn" onclick="closeMagnetZoom()"><i class="fa-solid fa-xmark"></i></button>
             <div class="magnet-zoom-card-container">
                 <div class="magnet-zoom-card" style="background-image:url('assets/magnet_open.png');">
@@ -1503,10 +1562,81 @@ window.zoomMagnet = (id) => {
                         </div>
                     </div>
                 </div>
+                ${addPhotoBtn}
             </div>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', zoomHtml);
+};
+
+window.addMagnetPhoto = (magnetId) => {
+    const mag = db.magnets.find(x => x.id === magnetId);
+    if (!mag) return;
+    const data = MAGNET_CATALOG[mag.code] || { title: 'Magnēta uzdevums', category: '', task: '' };
+
+    // Create a hidden file input and trigger it
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            // Compress image
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const maxDim = 1200;
+                let w = img.width, h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+                    else { w = Math.round(w * maxDim / h); h = maxDim; }
+                }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.8);
+
+                // Create photo entry
+                const photoId = Date.now();
+                const photoTitle = `🧲 ${data.title} — ${data.category}`;
+                db.photos.unshift({
+                    id: photoId,
+                    dataUrl: compressed,
+                    title: photoTitle
+                });
+
+                // Mark magnet as completed
+                mag.completed = true;
+                mag.photoId = photoId;
+                mag.completedAt = new Date().toISOString();
+
+                // Add history entry
+                db.history.unshift({
+                    id: Date.now() + 1,
+                    date: new Date().toISOString(),
+                    title: t(`Magnēta uzdevums izpildīts: ${data.title}`, `Magnet task completed: ${data.title}`),
+                    points: 25
+                });
+
+                saveDB();
+                renderRewards(document.getElementById('app-content'));
+                updateHeader();
+
+                // Show success toast or alert
+                alert(t('🎉 Uzdevums izpildīts! Foto pievienota galerijā.', '🎉 Task completed! Photo added to gallery.'));
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        input.remove();
+    };
+
+    input.click();
 };
 
 window.closeMagnetZoom = () => {
@@ -1523,8 +1653,24 @@ window.checkQRMagnet = () => {
     if (magnetCode && db.auth) {
         if (!db.magnets) db.magnets = [];
         const existing = db.magnets.find(m => m.code === magnetCode);
+
+        if (existing && existing.completed && existing.photoId) {
+            // Already completed — go straight to the photo view
+            window.history.replaceState({}, document.title, window.location.pathname);
+            setTimeout(() => zoomMagnet(existing.id), 500);
+            return;
+        }
+
+        if (existing && existing.unlocked) {
+            // Unlocked but not completed — show task zoom
+            window.history.replaceState({}, document.title, window.location.pathname);
+            if (currentRoute !== 'rewards') navigate('rewards');
+            setTimeout(() => zoomMagnet(existing.id), 500);
+            return;
+        }
+
         if (!existing) {
-            db.magnets.unshift({ id: Date.now(), code: magnetCode, unlocked: false, dateAdded: new Date().toISOString() });
+            db.magnets.unshift({ id: Date.now(), code: magnetCode, unlocked: false, completed: false, photoId: null, dateAdded: new Date().toISOString() });
             saveDB();
         }
         window.history.replaceState({}, document.title, window.location.pathname);
