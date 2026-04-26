@@ -1,7 +1,6 @@
 /* ==================================
    🔥 Firebase Configuration
    ================================== */
-alert("App script starting...");
 // ⚠️ REPLACE THESE WITH YOUR FIREBASE WEB SDK CONFIG
 // Go to Firebase Console → Project Settings → Your apps → Web app
 const firebaseConfig = {
@@ -1311,7 +1310,6 @@ function renderOnboarding(container) {
                </div>
             `;
         } else {
-            container.innerHTML = `
             container.innerHTML = `
                <div style="display:flex; justify-content:flex-start; margin-bottom:1rem;">
                    <button class="btn-secondary" style="width:auto; padding:8px 16px; font-size:0.85rem;" onclick="goBackToPairing()"><i class="fa-solid fa-arrow-left"></i> ${t('Atpakaļ', 'Back')}</button>
