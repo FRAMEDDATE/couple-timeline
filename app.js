@@ -2468,6 +2468,36 @@ window.toggleActivityChart = () => {
     if (el) el.classList.toggle('hidden');
 };
 
+window.toggleShopPromo = () => {
+    const packaging = document.getElementById('shop-packaging');
+    const products = document.getElementById('shop-products');
+    if (!packaging || !products) return;
+
+    if (products.style.display === 'none') {
+        // Expand: hide packaging, show products
+        packaging.style.opacity = '0';
+        packaging.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            packaging.style.display = 'none';
+            products.style.display = 'block';
+            requestAnimationFrame(() => {
+                products.style.opacity = '1';
+            });
+        }, 300);
+    } else {
+        // Collapse: show packaging, hide products
+        products.style.opacity = '0';
+        setTimeout(() => {
+            products.style.display = 'none';
+            packaging.style.display = 'block';
+            requestAnimationFrame(() => {
+                packaging.style.opacity = '1';
+                packaging.style.transform = 'scale(1)';
+            });
+        }, 300);
+    }
+};
+
 function getRelationshipScore() {
     const allGoalsCount = (db.goals || []).length;
     const achievedGoals = (db.goals || []).filter(g => g.achieved).length;
@@ -2649,6 +2679,59 @@ function renderTimeline(container) {
                     <i class="fa-solid fa-magnet"></i>
                     <span>${t('Magnēti', 'Magnets')}</span>
                 </div>
+           </div>
+
+           <!-- SHOP PROMO SECTION -->
+           <div class="animate-fade-in" style="animation-delay: 0.33s; margin-bottom:1.5rem;">
+               <div id="shop-promo-card" style="position:relative; border-radius:24px; overflow:hidden; cursor:pointer; box-shadow:0 10px 40px rgba(0,0,0,0.12);" onclick="toggleShopPromo()">
+                   <!-- Packaging hero (initial state) -->
+                   <div id="shop-packaging" style="transition:all 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
+                       <img src="assets/shop_packaging.png" style="width:100%; display:block; border-radius:24px;" alt="Framed Date">
+                       <div style="position:absolute; bottom:0; left:0; right:0; padding:24px; background:linear-gradient(transparent, rgba(0,0,0,0.75)); border-radius:0 0 24px 24px;">
+                           <p style="margin:0 0 4px 0; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:2px;">${t('FIZISKAIS PRODUKTS', 'PHYSICAL PRODUCT')}</p>
+                           <h3 style="margin:0 0 8px 0; font-size:1.4rem; font-weight:800; color:white; letter-spacing:-0.5px;">Framed Date</h3>
+                           <p style="margin:0; font-size:0.85rem; color:rgba(255,255,255,0.8);">${t('Nospied, lai apskatītu produktus →', 'Tap to explore products →')}</p>
+                       </div>
+                   </div>
+
+                   <!-- Expanded products (hidden initially) -->
+                   <div id="shop-products" style="display:none; opacity:0; transition:all 0.5s ease;">
+                       <div style="padding:24px 20px; background:var(--bg-panel);">
+                           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                               <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); letter-spacing:-0.3px;">${t('Mūsu Produkti', 'Our Products')}</h3>
+                               <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Framed Date</span>
+                           </div>
+                           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                               <!-- Frame Product -->
+                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border);">
+                                   <div style="aspect-ratio:1; overflow:hidden;">
+                                       <img src="assets/shop_frame.png" style="width:100%; height:100%; object-fit:cover;" alt="Rāmis">
+                                   </div>
+                                   <div style="padding:14px;">
+                                       <h4 style="margin:0 0 4px 0; font-size:0.9rem; font-weight:800; color:var(--text-main);">${t('Rāmis 25x25', 'Frame 25x25')}</h4>
+                                       <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-muted);">${t('Magnētiskais foto rāmis', 'Magnetic photo frame')}</p>
+                                       <a href="#" onclick="event.stopPropagation(); alert('${t('Saite tiks pievienota drīzumā!', 'Link coming soon!')}'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                           <i class="fa-solid fa-shopping-bag" style="margin-right:4px;"></i> ${t('Pasūtīt', 'Order')}
+                                       </a>
+                                   </div>
+                               </div>
+                               <!-- Magnets Product -->
+                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border);">
+                                   <div style="aspect-ratio:1; overflow:hidden;">
+                                       <img src="assets/shop_magnets.png" style="width:100%; height:100%; object-fit:cover;" alt="Magnēti">
+                                   </div>
+                                   <div style="padding:14px;">
+                                       <h4 style="margin:0 0 4px 0; font-size:0.9rem; font-weight:800; color:var(--text-main);">${t('18 Magnēti', '18 Magnets')}</h4>
+                                       <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-muted);">${t('Pāru uzdevumu komplekts', 'Couple task set')}</p>
+                                       <a href="#" onclick="event.stopPropagation(); alert('${t('Saite tiks pievienota drīzumā!', 'Link coming soon!')}'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                           <i class="fa-solid fa-shopping-bag" style="margin-right:4px;"></i> ${t('Pasūtīt', 'Order')}
+                                       </a>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
            </div>
 
            <div class="dash-history-toggle animate-fade-in" style="animation-delay: 0.35s;" onclick="toggleActivityChart()">
