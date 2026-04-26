@@ -1037,7 +1037,7 @@ function renderProfile(container) {
                </p>
                
                ${db.linkCode ? `
-                   <div style="background: #f8f9fa; padding: 15px; border-radius: 16px; margin-bottom: 1.5rem;">
+                   <div style="background: var(--bg-primary); border: 1px solid var(--glass-border); padding: 15px; border-radius: 16px; margin-bottom: 1.5rem;">
                        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">${t('Tavs Kods', 'Your Code')}</p>
                        <h2 class="number-font" style="letter-spacing: 5px; font-size: 2.5rem; margin: 10px 0;">${db.linkCode}</h2>
                        <button class="btn-primary" style="width: auto; padding: 10px 20px; font-size: 0.9rem;" onclick="showReconnectionQR()">
@@ -1123,10 +1123,10 @@ function renderProfile(container) {
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 2rem;">
-                ${db.auth.gameId ? `<button class="btn-secondary" style="color: #ff3b30; border-color: #ff3b30;" onclick="disconnectCouple()">${t('Atvienot Pāri', 'Disconnect Couple')}</button>` : ''}
-                <button id="logoutBtn" class="btn-secondary" style="color: #ff3b30; border-color: #ff3b30;" onclick="logout()">${t('Izrakstīties', 'Logout')}</button>
-                <button class="btn-secondary" style="color: #ff3b30; font-weight: 700;" onclick="window.resetAppData()">
-                    <i class="fa-solid fa-trash"></i> ${t('Dzēst datus un restartēt', 'Delete Data & Restart')}
+                ${db.auth.gameId ? `<button class="btn-secondary" style="color: var(--color-danger); border-color: var(--color-danger); font-weight: 700;" onclick="disconnectCouple()">${t('Atvienot Pāri', 'Disconnect Couple')}</button>` : ''}
+                <button id="logoutBtn" class="btn-secondary" style="color: var(--color-danger); font-weight: 700;" onclick="logout()">${t('Izrakstīties', 'Logout')}</button>
+                <button class="btn-secondary" style="color: var(--color-danger); font-weight: 800; border-style: dashed;" onclick="window.resetAppData()">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ${t('Dzēst datus un restartēt', 'Delete Data & Restart')}
                 </button>
             </div>
     `;
@@ -1200,8 +1200,8 @@ function renderOnboarding(container) {
            </div>
 
            <div class="onboarding-actions" style="margin-top:2rem; display:flex; flex-direction:column; gap:12px;">
-               <button class="btn-primary" style="background:var(--color-success); font-size:1.1rem; padding:18px;" onclick="finishOnboarding()">
-                   <i class="fa-solid fa-arrow-right"></i> ${t('Turpināt vēlāk (Connect later)', 'Continue Later (Connect later)')}
+               <button class="btn-primary" onclick="finishOnboarding()">
+                   <i class="fa-solid fa-arrow-right"></i> ${t('Turpināt vēlāk (Sākt spēli)', 'Continue Later (Start Game)')}
                </button>
                <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">${t('Varēsi savienoties vēlāk sava profila iestatījumos.', 'You can connect later in your profile settings.')}</p>
            </div>
@@ -1245,7 +1245,7 @@ function renderOnboarding(container) {
                    <h3 style="margin-bottom:1rem;">${t('Abi esat atbildējuši!', 'Both have answered!')}</h3>
                    <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.4;">${t('Spied pogu, lai atklātu rezultātu!', 'Press the button to reveal!')}</p>
 
-                   <button class="btn-primary" style="font-size:1.1rem; padding:15px; background:var(--color-success);" onclick="checkIcebreaker()">${t('Pārbaudīt Saderību', 'Check Match')}</button>
+                   <button class="btn-primary" style="font-size:1.1rem; padding:15px;" onclick="checkIcebreaker()">${t('Pārbaudīt Saderību', 'Check Match')}</button>
                </div>
             `;
         }
@@ -1445,7 +1445,9 @@ function renderRewards(container) {
 
         ${magnetsHtml}
 
-        <button class="btn-secondary" style="width:100%; margin-top:2rem;" onclick="startQRScanner()"><i class="fa-solid fa-qrcode"></i> ${t('Noskanēt magnēta kodu', 'Scan Magnet QR')}</button>
+        <button class="btn-primary" style="width:100%; margin-top:2rem; background: linear-gradient(135deg, #14B8A6, #0D9488); border:none;" onclick="startQRScanner()">
+            <i class="fa-solid fa-qrcode"></i> ${t('Noskanēt magnēta kodu', 'Scan Magnet QR')}
+        </button>
     `;
 }
 
@@ -1927,7 +1929,7 @@ window.openSendTaskModal = () => {
             <p style="font-size:0.8rem; margin:0; line-height:1.5; color:var(--text-main);">${t('Ja partneris neizpildīs uzdevumu termiņā, viņam tiks atņemts norādītais sodu punktu skaits. Tu apstiprin uzdevuma izpildi.', 'If your partner fails to complete the task by the deadline, penalty points will be deducted from their score. You confirm task completion.')}</p>
         </div>
 
-        <button class="btn-primary" style="font-size:1.05rem; padding:14px; background:linear-gradient(135deg,#FF5A7E,#C084FC); border:none;" onclick="sendTask()">
+        <button class="btn-primary" style="font-size:1.05rem; padding:16px; background: linear-gradient(135deg, #FF5A7E, #C084FC); border: none;" onclick="sendTask()">
             <i class="fa-solid fa-paper-plane" style="margin-right:8px;"></i> ${t('Nosūtīt Uzdevumu', 'Send Task')}
         </button>
     `);

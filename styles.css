@@ -82,10 +82,12 @@
 
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-bg-nav: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(0, 0, 0, 0.08);
     --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.06);
     --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.12);
     --bg-panel: #FFFFFF;
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: rgba(0, 0, 0, 0.1);
 }
 
 /* Dark Mode Overrides */
@@ -97,8 +99,10 @@
     --color-secondary: #2C2C2E;
     --glass-bg: rgba(28, 28, 30, 0.85);
     --glass-bg-nav: rgba(255, 255, 255, 0.98); /* Force header to white */
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --bg-panel: #1D1D1F; /* Distinct grey surface */
+    --input-bg: rgba(255, 255, 255, 0.06);
+    --input-border: rgba(255, 255, 255, 0.15);
     --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.5);
     --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.7);
 }
@@ -307,43 +311,53 @@ button {
 .input-field {
     width: 100%;
     padding: 1rem 1.2rem;
-    border: 1px solid transparent;
+    border: 1px solid var(--input-border);
     border-radius: var(--border-radius-md);
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--input-bg);
     font-family: var(--font-body);
     font-size: 1.05rem;
     color: var(--text-main);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .input-field:focus {
     outline: none;
     border-color: var(--color-accent);
+    background: var(--bg-panel);
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+}
+
+.dark-mode .input-field:focus {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    background: var(--text-main);
-    color: var(--bg-primary);
+    background: linear-gradient(135deg, #1D1D1F, #3A3A3C);
+    color: #FFFFFF;
     padding: 1.1rem;
     border-radius: var(--border-radius-md);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 1.05rem;
-    /* 3D Inset Effect */
-    box-shadow: inset 1px 3px 5px rgba(255, 255, 255, 0.25), inset -2px -4px 8px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0,0,0,0.8);
-    transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark-mode .btn-primary {
+    background: linear-gradient(135deg, #FFFFFF, #E5E5E5);
+    color: #000000;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:active {
-    transform: scale(0.97);
-    box-shadow: inset 2px 4px 10px rgba(0, 0, 0, 0.8), inset -1px -2px 5px rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+    opacity: 0.9;
 }
 
 .btn-secondary {
@@ -354,19 +368,24 @@ button {
     width: 100%;
     background: var(--bg-panel);
     color: var(--text-main);
-    border: 1px solid var(--color-secondary);
+    border: 1px solid var(--input-border);
     padding: 1.1rem;
     border-radius: var(--border-radius-md);
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
     margin-top: 10px;
-    box-shadow: inset 2px 2px 8px rgba(255,255,255,0.9), inset -3px -3px 8px rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.04);
-    transition: transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.dark-mode .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .btn-secondary:active {
-    transform: scale(0.97);
-    box-shadow: inset 3px 4px 8px rgba(0, 0, 0, 0.1), inset -2px -2px 4px #FFFFFF;
+    transform: scale(0.98);
+    background: var(--color-secondary);
 }
 
 /* Date Picker Fixes */
@@ -979,14 +998,14 @@ input[type="date"].input-field::-webkit-date-and-time-value {
 .auth-input {
     width: 100%;
     padding: 1.1rem 1rem 1.1rem 2.8rem;
-    border: none;
+    border: 1px solid var(--input-border);
     border-radius: var(--border-radius-md);
-    background: #FFFFFF;
+    background: var(--input-bg);
     font-family: var(--font-body);
     font-size: 1.05rem;
     color: var(--text-main);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 2px 10px rgba(0,0,0,0.02);
-    transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .auth-input:focus {
@@ -1003,22 +1022,26 @@ input[type="date"].input-field::-webkit-date-and-time-value {
 
 .auth-submit-btn {
     width: 100%;
-    background: #B4A79F;
+    background: linear-gradient(135deg, #1D1D1F, #3A3A3C);
     color: #FFFFFF;
     padding: 1.1rem;
     border-radius: var(--border-radius-md);
     font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    font-size: 1.05rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     margin-top: 1rem;
-    transition: background 0.2s;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.auth-submit-btn:not(:disabled) {
-    background: #7D6350;
+.dark-mode .auth-submit-btn {
+    background: linear-gradient(135deg, #FFFFFF, #E5E5E5);
+    color: #000000;
 }
-.auth-submit-btn:disabled {
-    cursor: not-allowed;
+
+.auth-submit-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
 }
 
 /* ==================================
