@@ -33,11 +33,18 @@
     <!-- Cropper.js for image clipping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            alert("JS Error: " + msg + "\nLine: " + line + "\nFile: " + url);
+            return false;
+        };
+    </script>
 </head>
 
 <body class="theme-classic">
 
     <script>
+        /*
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js?v=60')
@@ -45,6 +52,7 @@
                     .catch(err => console.error('Service Worker registration failed', err));
             });
         }
+        */
     </script>
 
     <div id="loading-overlay" class="loading-overlay">
@@ -97,7 +105,7 @@
 
     </div>
 
-    <script src="app.js?v=60"></script>
+    <script src="app.js?v=61"></script>
 </body>
 
 </html>
