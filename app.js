@@ -1,6 +1,7 @@
 /* ==================================
    🔥 Firebase Configuration
    ================================== */
+alert("App script starting...");
 // ⚠️ REPLACE THESE WITH YOUR FIREBASE WEB SDK CONFIG
 // Go to Firebase Console → Project Settings → Your apps → Web app
 const firebaseConfig = {
