@@ -721,6 +721,15 @@ window.onpopstate = (event) => {
 function updateHeader() {
     const ptEl = document.getElementById('user-points');
     if (ptEl) ptEl.textContent = db.points;
+    
+    const kidsToggle = document.getElementById('kids-mode-toggle');
+    if (kidsToggle) {
+        if (db && db.kidsMode) {
+            kidsToggle.style.color = '#54A0FF';
+        } else {
+            kidsToggle.style.color = 'var(--text-muted)';
+        }
+    }
 }
 
 function showOverlay(html) {
@@ -1810,6 +1819,44 @@ const CATEGORY_TEMPLATES = {
     ],
 };
 
+const KIDS_CATEGORIES = [
+    { id: 'chores', icon: 'broom', color: '#54A0FF', bg: 'rgba(84,160,255,0.12)', lv: 'Mājas darbi', en: 'Chores', cls: 'cat-cleaning' },
+    { id: 'study', icon: 'book', color: '#FF9F43', bg: 'rgba(255,159,67,0.12)', lv: 'Mācības', en: 'Study', cls: 'cat-study' },
+    { id: 'behavior', icon: 'star', color: '#FF5A7E', bg: 'rgba(255,90,126,0.12)', lv: 'Uzvedība', en: 'Behavior', cls: 'cat-star' },
+];
+
+const KIDS_CATEGORY_TEMPLATES = {
+    chores: [
+        { lv: 'Sakārtot savu istabu', en: 'Clean your room', points: 20 },
+        { lv: 'Izpildīt trauku mašīnas izkraušanu', en: 'Empty the dishwasher', points: 15 },
+        { lv: 'Iznest atkritumus', en: 'Take out the trash', points: 10 },
+        { lv: 'Salocīt savas drēbes', en: 'Fold your clothes', points: 15 },
+        { lv: 'Pabarot mājdzīvnieku', en: 'Feed the pet', points: 20 },
+    ],
+    study: [
+        { lv: 'Izpildīt visus mājasdarbus', en: 'Do all homework', points: 30 },
+        { lv: 'Izlasīt 1 nodaļu grāmatai', en: 'Read 1 chapter of a book', points: 20 },
+        { lv: 'Papildus matemātikas uzdevums', en: 'Extra math task', points: 25 },
+        { lv: 'Iemācīties ko jaunu', en: 'Learn something new', points: 30 },
+    ],
+    behavior: [
+        { lv: 'Diena bez strīdiem', en: 'A day without arguments', points: 25 },
+        { lv: 'Palīdzēt vecākiem bez lūguma', en: 'Help parents without asking', points: 30 },
+        { lv: 'Uzzīmēt zīmējumu', en: 'Draw a picture', points: 15 },
+        { lv: 'Ekrāna laiks zem 1h', en: 'Screen time under 1h', points: 40 },
+    ],
+};
+
+window.toggleKidsMode = () => {
+    if (!db) return;
+    db.kidsMode = !db.kidsMode;
+    saveDBLocal();
+    updateHeader();
+    if (currentRoute === 'coupons') {
+        renderCoupons(document.getElementById('app-content'));
+    }
+};
+
 // Automatic expiry penalty checker
 function checkExpiredTasks() {
     if (!db || !db.auth || !db.coupons) return;
@@ -1966,8 +2013,10 @@ window.resetTemplates = () => {
 };
 
 function renderTemplatesForCat(catId, container) {
-    const templates = CATEGORY_TEMPLATES[catId] || [];
-    const catColor = TASK_CATEGORIES.find(x => x.id === catId)?.color || '#FF5A7E';
+    let cats = db && db.kidsMode ? KIDS_CATEGORIES : TASK_CATEGORIES;
+    let tpls = db && db.kidsMode ? KIDS_CATEGORY_TEMPLATES : CATEGORY_TEMPLATES;
+    const templates = tpls[catId] || [];
+    const catColor = cats.find(x => x.id === catId)?.color || '#FF5A7E';
     const visible = templates.filter((_, i) => !window.dismissedTemplates.has(`${catId}:${i}`));
 
     if (visible.length === 0) {
@@ -2001,7 +2050,8 @@ function renderTemplatesForCat(catId, container) {
 
 window.selectTaskCat = (catId) => {
     window.selectedTaskCat = catId;
-    TASK_CATEGORIES.forEach(c => {
+    let cats = db && db.kidsMode ? KIDS_CATEGORIES : TASK_CATEGORIES;
+    cats.forEach(c => {
         const el = document.getElementById('taskcat-' + c.id);
         if (el) {
             if (c.id === catId) {
@@ -2020,11 +2070,12 @@ window.selectTaskCat = (catId) => {
 };
 
 window.openSendTaskModal = () => {
-    window.selectedTaskCat = 'romance';
+    let cats = db && db.kidsMode ? KIDS_CATEGORIES : TASK_CATEGORIES;
+    window.selectedTaskCat = cats[0].id; // romance or chores
     window.dismissedTemplates = new Set();
-    const catGrid = TASK_CATEGORIES.map(c => `
+    const catGrid = cats.map(c => `
         <div id="taskcat-${c.id}" onclick="selectTaskCat('${c.id}')"
-             style="padding:14px 6px; border-radius:14px; border:2px solid ${c.id === 'romance' ? c.color : 'rgba(0,0,0,0.06)'}; text-align:center; cursor:pointer; background:${c.id === 'romance' ? c.bg : 'var(--bg-panel)'}; transition:0.25s; user-select:none;">
+             style="padding:14px 6px; border-radius:14px; border:2px solid ${c.id === cats[0].id ? c.color : 'rgba(0,0,0,0.06)'}; text-align:center; cursor:pointer; background:${c.id === cats[0].id ? c.bg : 'var(--bg-panel)'}; transition:0.25s; user-select:none;">
             <i class="fa-solid fa-${c.icon} caticon" style="color:${c.color}; font-size:1.4rem; margin-bottom:7px; display:block; transition:0.2s;"></i>
             <div style="font-size:0.73rem; font-weight:700; color:var(--text-main); line-height:1.2;">${t(c.lv, c.en)}</div>
         </div>
