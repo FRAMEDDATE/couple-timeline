@@ -1883,6 +1883,8 @@ window.toggleKidsMode = () => {
     updateHeader();
     if (currentRoute === 'coupons') {
         renderCoupons(document.getElementById('app-content'));
+    } else if (currentRoute === 'timeline') {
+        renderTimeline(document.getElementById('app-content'));
     }
 };
 
@@ -2703,7 +2705,7 @@ function renderTimeline(container) {
                </div>
 
                <div class="dash-hero-bottom">
-                   <div class="dash-progress-title">${t('Sasniegtie mērķi', 'Achieved goals')}</div>
+                   <div class="dash-progress-title">${db.kidsMode ? t('Sasniegumi', 'Achievements') : t('Sasniegtie mērķi', 'Achieved goals')}</div>
                    <div class="dash-progress-wrap">
                        <div class="dash-progress-bar">
                            <div class="dash-progress-fill" style="width: ${scr.percentage}%; background: ${scr.color};"></div>
@@ -2712,7 +2714,7 @@ function renderTimeline(container) {
                    </div>
 
                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
-                       <div class="dash-progress-title" style="margin-bottom:0;">${t('Attiecību Mērķi', 'Relationship Goals')}</div>
+                       <div class="dash-progress-title" style="margin-bottom:0;">${db.kidsMode ? t('Bērna apņemšanās', 'Child commitments') : t('Attiecību Mērķi', 'Relationship Goals')}</div>
                        <div onclick="window.manageGoals()" style="color:#FF5A7E; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;">
                            <i class="fa-solid fa-pen"></i> ${t('Pārvaldīt', 'Manage')}
                        </div>
