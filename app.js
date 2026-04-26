@@ -918,13 +918,18 @@ window.login = async () => {
             const username = document.getElementById('auth-user').value.trim() || 'Lietotājs';
             const credential = firebase.auth.EmailAuthProvider.credential(email, pass);
 
+            const actionCodeSettings = {
+                url: window.location.origin + window.location.pathname,
+                handleCodeInApp: true,
+            };
+
             if (currentUser && currentUser.isAnonymous) {
                 await currentUser.linkWithCredential(credential);
-                await currentUser.sendEmailVerification();
+                await currentUser.sendEmailVerification(actionCodeSettings);
                 console.log("✅ Anonymous account linked to email and verification sent");
             } else {
                 const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, pass);
-                await userCredential.user.sendEmailVerification();
+                await userCredential.user.sendEmailVerification(actionCodeSettings);
                 console.log("✅ New permanent account created and verification email sent");
             }
             
