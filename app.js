@@ -1124,11 +1124,16 @@ function renderProfile(container) {
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 2rem;">
-                ${db.auth.gameId ? `<button class="btn-secondary" style="color: var(--color-danger); border-color: var(--color-danger); font-weight: 700;" onclick="disconnectCouple()">${t('Atvienot Pāri', 'Disconnect Couple')}</button>` : ''}
-                <button id="logoutBtn" class="btn-secondary" style="color: var(--color-danger); font-weight: 700;" onclick="logout()">${t('Izrakstīties', 'Logout')}</button>
-                <button class="btn-secondary" style="color: var(--color-danger); font-weight: 800; border-style: dashed;" onclick="window.resetAppData()">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ${t('Dzēst datus un restartēt', 'Delete Data & Restart')}
+            <div class="glass-panel" style="margin-bottom: 2rem; padding: 0; overflow: hidden;">
+                ${db.auth.gameId ? `
+                <button style="width:100%; padding:16px 20px; background:none; border:none; border-bottom:0.5px solid var(--glass-border); color:#FF3B30; font-size:1rem; font-weight:600; font-family:inherit; cursor:pointer; text-align:center;" onclick="disconnectCouple()">
+                    ${t('Atvienot Pāri', 'Disconnect Couple')}
+                </button>` : ''}
+                <button id="logoutBtn" style="width:100%; padding:16px 20px; background:none; border:none; border-bottom:0.5px solid var(--glass-border); color:#FF3B30; font-size:1rem; font-weight:600; font-family:inherit; cursor:pointer; text-align:center;" onclick="logout()">
+                    ${t('Izrakstīties', 'Logout')}
+                </button>
+                <button style="width:100%; padding:16px 20px; background:none; border:none; color:#FF3B30; font-size:0.9rem; font-weight:600; font-family:inherit; cursor:pointer; text-align:center; opacity:0.7;" onclick="window.resetAppData()">
+                    ${t('Dzēst datus un restartēt', 'Delete Data & Restart')}
                 </button>
             </div>
     `;
