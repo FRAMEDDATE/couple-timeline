@@ -1,0 +1,13 @@
+{
+  "name": "couple-timeline",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "http-server .",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

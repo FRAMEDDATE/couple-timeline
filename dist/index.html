@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="lv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ffffff">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Pāra Laika Līnijas Ģenerators - Framed Date</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=52">
+    <!-- Lucide Icons via standard CDN for SVG sprites doesn't work well without JS, so we'll use FontAwesome for ease -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Activity Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK (v9 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <!-- QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/AppIcon_v2.png">
+    <!-- Cropper.js for image clipping -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+</head>
+
+<body class="theme-classic">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=52')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service Worker registration failed', err));
+            });
+        }
+    </script>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <img src="assets/logo.png" alt="Logo" class="loading-logo">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Sagatavo atmiņas...</p>
+            <button id="offline-btn" class="btn-secondary hidden" onclick="continueOffline()" style="margin-top:20px;">Turpināt bezsaistē</button>
+        </div>
+    </div>
+
+    <div id="auth-guard">
+        <!-- Auth View -->
+    </div>
+
+    <!-- Toast Notification Container - always on top -->
+    <div id="toast-container"></div>
+
+    <!-- Main Shell (Hidden until Auth) -->
+    <div id="main-shell" class="hidden">
+
+        <!-- Top App Header iOS Style -->
+        <header class="app-header">
+            <div style="display:flex; align-items:center;">
+                <button id="global-back-btn" class="hidden" onclick="navigate('timeline')" style="border:none; background:transparent; font-size:1.3rem; color:var(--text-main); margin-right:15px; cursor:pointer;"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="header-logo" style="margin-top: 5px;">
+                    <img src="assets/logo.png" alt="Framed Date" style="height: 38px; width: auto; object-fit: contain;">
+                </div>
+            </div>
+            <div class="header-points" style="display:flex; align-items:center; gap:15px;">
+                <div id="connection-status-dot" style="width:8px; height:8px; border-radius:50%; background:#ff6b6b; transition:0.3s; box-shadow:0 0 5px rgba(0,0,0,0.1);" title="Atvienots"></div>
+                <div class="lang-switch-header" style="font-weight:600; font-size:0.85rem;">
+                    <span onclick="setLang('lv')" id="lang-lv"
+                        style="cursor:pointer; transition:0.3s; color:var(--text-main);">LV</span><span
+                        style="opacity:0.3; margin:0 4px;">|</span><span id="lang-en" onclick="setLang('en')"
+                        style="cursor:pointer; transition:0.3s; color:var(--text-muted);">EN</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Router -->
+        <main id="app-content" class="app-content container">
+            <!-- Views injected here -->
+        </main>
+
+    </div>
+
+    <script src="app.js?v=52"></script>
+</body>
+
+</html>

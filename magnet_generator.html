@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnētu QR Kodu Ģenerators</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f5; }
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .qr-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .qr-card img { width: 150px; height: 150px; margin-bottom: 10px; }
+        h1 { margin-bottom: 20px; color: #333; }
+        .btn { display: inline-block; padding: 8px 15px; background: #FF5A7E; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; }
+    </style>
+    <!-- Use a reliable QR library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+
+    <h1>Magnētu QR Ģenerators (Drukai)</h1>
+    <p style="margin-bottom:20px;">URL bāze: <input type="text" id="urlBase" value="https://frameddate.com/" style="padding:5px; width:250px;"></p>
+    
+    <button onclick="generate()" style="padding:10px 20px; background:#4dabf7; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px; margin-bottom:30px;">Ģenerēt Visus QR Kodus</button>
+
+    <h2>Standarta Magnēti (100 pt)</h2>
+    <div id="standard-grid" class="grid" style="margin-bottom: 40px;"></div>
+    
+    <h2>Partneru Magnēti (150 pt)</h2>
+    <div id="partner-grid" class="grid"></div>
+
+    <script>
+        function generate() {
+            const base = document.getElementById('urlBase').value;
+            const standardObj = document.getElementById('standard-grid');
+            const partnerObj = document.getElementById('partner-grid');
+            
+            standardObj.innerHTML = '';
+            partnerObj.innerHTML = '';
+
+            // Generate 10 standard
+            for(let i=1; i<=10; i++) {
+                const code = `standarta_${i}`;
+                createQRCard(base + '?magnet=' + code, `ST-${i}`, standardObj);
+            }
+
+            // Generate 10 partner
+            for(let i=1; i<=10; i++) {
+                const code = `partneru_${i}`;
+                createQRCard(base + '?magnet=' + code, `PT-${i}`, partnerObj);
+            }
+        }
+
+        function createQRCard(url, label, container) {
+            const div = document.createElement('div');
+            div.className = 'qr-card';
+            
+            const title = document.createElement('h3');
+            title.textContent = label;
+            title.style.margin = "0 0 10px 0";
+            
+            const canvas = document.createElement('canvas');
+            
+            QRCode.toDataURL(url, { width: 300, margin: 2 }, function (err, dataUrl) {
+                if (err) return console.error(err);
+                
+                const img = document.createElement('img');
+                img.src = dataUrl;
+                
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `QR_${label}.png`;
+                link.className = 'btn';
+                link.textContent = 'Lejuplādēt PNG';
+                
+                div.appendChild(title);
+                div.appendChild(img);
+                div.appendChild(document.createElement('br'));
+                div.appendChild(link);
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

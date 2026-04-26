@@ -1,0 +1,23 @@
+{
+  "name": "FRAMED DATE",
+  "short_name": "Framed Date",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff4d4d",
+  "description": "Framed Date app with Firebase Cloud Sync",
+  "icons": [
+    {
+      "src": "assets/AppIcon_v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/AppIcon_v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
