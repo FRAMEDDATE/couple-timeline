@@ -396,23 +396,24 @@ window.joinCouple = async (directCode = null) => {
             return;
         }
 
-        // 3. Update Session & User (Only data we have permission for)
-        const updates = {};
-        updates[`games/${gameId}/metadata/clientUid`] = myUID;
-        updates[`games/${gameId}/metadata/status`] = 'active';
-        updates[`games/${gameId}/metadata/connected`] = true;
-        
-        // Update ONLY our own user session
-        updates[`users/${myUID}/session`] = {
+        // 3. Update Session & User (Split to identify permission issues)
+        console.log("📤 Updating game metadata...");
+        await firebaseDB.ref(`games/${gameId}/metadata`).update({
+            clientUid: myUID,
+            status: 'active',
+            connected: true
+        });
+
+        console.log("📤 Updating user session...");
+        await firebaseDB.ref(`users/${myUID}/session`).set({
             gameId: gameId,
             role: 'client',
             onboardingFinished: true,
             connected: true
-        };
-
-        await firebaseDB.ref().update(updates);
+        });
 
         // 4. Cleanup Code
+        console.log("🧹 Cleaning up pairing code...");
         await firebaseDB.ref(`codes/${input}`).remove().catch(e => console.warn("Code cleanup failed", e));
 
         db.auth.gameId = gameId;
@@ -458,11 +459,19 @@ function attachGameListener(gameId) {
         if (!meta) return;
 
         db.auth.connected = meta.status === 'active';
-        if (db.auth.connected) db.linkCode = null; // Clear code once connected
+        if (db.auth.connected) {
+            db.linkCode = null;
+            db.auth.linked = true;
+        }
         db.relationship_start = meta.relationship_start;
         saveDBLocal();
         updateConnectionStatus(isFirebaseConnected && !!myUID);
         updateHeader();
+        
+        // If we are on onboarding, re-render to move to next step (Icebreaker)
+        if (currentRoute === 'onboarding') {
+            renderOnboarding(document.getElementById('app-content'));
+        }
     });
 
     // B. Shared Data Listener (Points, History, Coupons, Goals)
