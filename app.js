@@ -2765,7 +2765,7 @@ function renderTimeline(container) {
                <div id="shop-promo-card" style="position:relative; border-radius:24px; overflow:hidden; cursor:pointer; box-shadow:0 10px 40px rgba(0,0,0,0.12);" onclick="toggleShopPromo()">
                    <!-- Packaging hero (initial state) -->
                    <div id="shop-packaging" style="transition:all 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
-                       <img src="assets/shop_packaging.png" style="width:100%; display:block; border-radius:24px;" alt="Framed Date">
+                       <img src="assets/baneris.PNG" style="width:100%; display:block; border-radius:24px;" alt="Framed Date">
                        <div style="position:absolute; bottom:0; left:0; right:0; padding:24px; background:linear-gradient(transparent, rgba(0,0,0,0.75)); border-radius:0 0 24px 24px;">
                            <p style="margin:0 0 4px 0; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:2px;">${t('FIZISKAIS PRODUKTS', 'PHYSICAL PRODUCT')}</p>
                            <h3 style="margin:0 0 8px 0; font-size:1.4rem; font-weight:800; color:white; letter-spacing:-0.5px;">Framed Date</h3>
