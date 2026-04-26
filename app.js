@@ -1278,6 +1278,9 @@ function renderOnboarding(container) {
         // Step 2: Icebreaker Match
         if (!db.auth.myIcebreaker) {
             container.innerHTML = `
+               <div style="display:flex; justify-content:flex-start; margin-bottom:1rem;">
+                   <button class="btn-secondary" style="width:auto; padding:8px 16px; font-size:0.85rem;" onclick="goBackToPairing()"><i class="fa-solid fa-arrow-left"></i> ${t('Atpakaļ', 'Back')}</button>
+               </div>
                <h2 class="view-title animate-fade-in" style="text-align:center;">${t('Cold Breaker', 'Cold Breaker')} 🧊</h2>
                <div class="glass-panel text-center animate-fade-in" style="animation-delay:0.1s;">
                    <i class="fa-solid fa-calendar-heart text-gold" style="font-size:3.5rem; margin-bottom:1.5rem;"></i>
@@ -1294,6 +1297,9 @@ function renderOnboarding(container) {
             `;
         } else if (!db.auth.partnerIcebreaker) {
             container.innerHTML = `
+               <div style="display:flex; justify-content:flex-start; margin-bottom:1rem;">
+                   <button class="btn-secondary" style="width:auto; padding:8px 16px; font-size:0.85rem;" onclick="goBackToPairing()"><i class="fa-solid fa-arrow-left"></i> ${t('Atpakaļ', 'Back')}</button>
+               </div>
                <h2 class="view-title animate-fade-in" style="text-align:center;">${t('Cold Breaker', 'Cold Breaker')} 🧊</h2>
                <div class="glass-panel text-center animate-fade-in" style="animation-delay:0.1s;">
                    <i class="fa-solid fa-hourglass-half text-gold" style="font-size:3.5rem; margin-bottom:1.5rem;"></i>
@@ -1305,6 +1311,10 @@ function renderOnboarding(container) {
             `;
         } else {
             container.innerHTML = `
+            container.innerHTML = `
+               <div style="display:flex; justify-content:flex-start; margin-bottom:1rem;">
+                   <button class="btn-secondary" style="width:auto; padding:8px 16px; font-size:0.85rem;" onclick="goBackToPairing()"><i class="fa-solid fa-arrow-left"></i> ${t('Atpakaļ', 'Back')}</button>
+               </div>
                <h2 class="view-title animate-fade-in" style="text-align:center;">${t('Cold Breaker', 'Cold Breaker')} 🧊</h2>
                <div class="glass-panel text-center animate-fade-in" style="animation-delay:0.1s;">
                    <i class="fa-solid fa-masks-theater text-gold" style="font-size:3.5rem; margin-bottom:1.5rem;"></i>
@@ -1333,6 +1343,15 @@ function renderOnboarding(container) {
         `;
     }
 }
+
+window.goBackToPairing = () => {
+    if (!confirm(t("Atgriežoties atpakaļ, savienojums tiks pārtraukts. Vai turpināt?", "Going back will disconnect current pairing. Continue?"))) return;
+    db.auth.linked = false;
+    db.auth.connected = false;
+    db.auth.gameId = null;
+    saveDBLocal();
+    renderOnboarding(document.getElementById('app-content'));
+};
 
 window.disconnectCouple = async () => {
     if (!confirm(t("Vai tiešām vēlaties atvienoties no partnera? Kopīgie dati netiks dzēsti, bet Jūs tos vairs neredzēsiet.", "Are you sure you want to disconnect? Shared data won't be deleted, but you will lose access."))) return;
