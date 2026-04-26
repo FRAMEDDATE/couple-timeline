@@ -732,11 +732,18 @@ function updateHeader() {
     if (ptEl) ptEl.textContent = db.points;
     
     const kidsToggle = document.getElementById('kids-mode-toggle');
-    if (kidsToggle) {
+    const kidsKnob = document.getElementById('kids-mode-knob');
+    const kidsIcon = document.getElementById('kids-mode-icon');
+    
+    if (kidsToggle && kidsKnob && kidsIcon) {
         if (db && db.kidsMode) {
             kidsToggle.style.background = '#34C759'; // Green when ON
+            kidsKnob.style.transform = 'translateX(22px)';
+            kidsIcon.style.color = '#34C759';
         } else {
             kidsToggle.style.background = '#FF3B30'; // Red when OFF
+            kidsKnob.style.transform = 'translateX(0px)';
+            kidsIcon.style.color = '#FF3B30';
         }
     }
 }
@@ -1522,6 +1529,16 @@ window.unlockMagnet = (id, cost) => {
     } else {
         alert(t(`Nepietiek punktu! Tev ir: ${totalMyPoints}`, `Not enough points! You have: ${totalMyPoints}`));
     }
+};
+
+window.zoomImage = (src) => {
+    const zoomHtml = `
+        <div class="magnet-zoom-overlay animate-fade-in" id="image-zoom" onclick="if(event.target===this) this.remove()" style="display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,0.9); padding:20px; z-index:10000; position:fixed; top:0; left:0; right:0; bottom:0; cursor:pointer;">
+            <button class="zoom-close-btn" onclick="document.getElementById('image-zoom').remove()" style="position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; width:40px; height:40px; border-radius:50%; color:white; font-size:1.5rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            <img src="${src}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.5);" />
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', zoomHtml);
 };
 
 window.zoomMagnet = (id) => {
@@ -2777,33 +2794,33 @@ function renderTimeline(container) {
                    <div id="shop-products" style="display:none; opacity:0; transition:all 0.5s ease;">
                        <div style="padding:24px 20px; background:var(--bg-panel);">
                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-                               <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); letter-spacing:-0.3px;">${t('Mūsu Produkti', 'Our Products')}</h3>
+                               <h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); letter-spacing:-0.3px;">${t('Mūsu preces', 'Our Products')}</h3>
                                <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Framed Date</span>
                            </div>
                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                                <!-- Frame Product -->
-                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border);">
+                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border); cursor:pointer;" onclick="event.stopPropagation(); zoomImage('assets/shop_frame.png');">
                                    <div style="aspect-ratio:1; overflow:hidden;">
                                        <img src="assets/shop_frame.png" style="width:100%; height:100%; object-fit:cover;" alt="Rāmis">
                                    </div>
                                    <div style="padding:14px;">
                                        <h4 style="margin:0 0 4px 0; font-size:0.9rem; font-weight:800; color:var(--text-main);">${t('Rāmis 25x25', 'Frame 25x25')}</h4>
                                        <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-muted);">${t('Magnētiskais foto rāmis', 'Magnetic photo frame')}</p>
-                                       <a href="#" onclick="event.stopPropagation(); alert('${t('Saite tiks pievienota drīzumā!', 'Link coming soon!')}'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                                           <i class="fa-solid fa-shopping-bag" style="margin-right:4px;"></i> ${t('Pasūtīt', 'Order')}
+                                       <a href="#" onclick="event.stopPropagation(); zoomImage('assets/shop_frame.png'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                           <i class="fa-solid fa-expand" style="margin-right:4px;"></i> ${t('Apskatīt', 'View')}
                                        </a>
                                    </div>
                                </div>
                                <!-- Magnets Product -->
-                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border);">
+                               <div style="border-radius:20px; overflow:hidden; background:var(--color-secondary); border:1px solid var(--glass-border); cursor:pointer;" onclick="event.stopPropagation(); zoomImage('assets/shop_magnets.png');">
                                    <div style="aspect-ratio:1; overflow:hidden;">
                                        <img src="assets/shop_magnets.png" style="width:100%; height:100%; object-fit:cover;" alt="Magnēti">
                                    </div>
                                    <div style="padding:14px;">
                                        <h4 style="margin:0 0 4px 0; font-size:0.9rem; font-weight:800; color:var(--text-main);">${t('18 Magnēti', '18 Magnets')}</h4>
                                        <p style="margin:0 0 12px 0; font-size:0.75rem; color:var(--text-muted);">${t('Pāru uzdevumu komplekts', 'Couple task set')}</p>
-                                       <a href="#" onclick="event.stopPropagation(); alert('${t('Saite tiks pievienota drīzumā!', 'Link coming soon!')}'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                                           <i class="fa-solid fa-shopping-bag" style="margin-right:4px;"></i> ${t('Pasūtīt', 'Order')}
+                                       <a href="#" onclick="event.stopPropagation(); zoomImage('assets/shop_magnets.png'); return false;" style="display:block; text-align:center; padding:10px; background:var(--text-main); color:var(--bg-primary); border-radius:12px; font-weight:700; font-size:0.8rem; text-decoration:none; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                           <i class="fa-solid fa-expand" style="margin-right:4px;"></i> ${t('Apskatīt', 'View')}
                                        </a>
                                    </div>
                                </div>
