@@ -858,7 +858,16 @@ function renderAuth(container) {
         <div class="auth-wrapper">
             <img src="assets/logo.png" alt="Framed Date Logo" class="auth-logo animate-fade-in">
 
-            <h1 class="auth-header-text animate-fade-in" style="animation-delay: 0.1s;">${t('Krāj punktus - veido<br>atmiņas', 'Collect points - create<br>memories')}</h1>
+            <div class="marquee-container animate-fade-in" style="animation-delay: 0.1s;">
+                <div class="marquee-content">
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                    <span>${t('Krāj punktus — veido atmiņas', 'Collect points — create memories')}</span>
+                </div>
+            </div>
             <p class="auth-subtitle animate-fade-in" style="animation-delay: 0.2s;">${t('Vēl viens iemesls radīt atmiņas, nevis plānus.', 'Another reason to create memories, not plans.')}</p>
 
             <div class="auth-form">

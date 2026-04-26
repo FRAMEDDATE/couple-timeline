@@ -51,6 +51,38 @@
 .btn-social i {
     font-size: 1.1rem;
 }
+
+/* Marquee / Loop Slider */
+.marquee-container {
+    width: 100%;
+    overflow: hidden;
+    background: #1D1D1F;
+    padding: 12px 0;
+    margin: 1.5rem 0;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.marquee-content {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 15s linear infinite;
+}
+
+.marquee-content span {
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding-right: 40px;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
 :root {
     --transition-speed: 0.3s;
     --border-radius-lg: 24px;
