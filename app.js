@@ -734,9 +734,9 @@ function updateHeader() {
     const kidsToggle = document.getElementById('kids-mode-toggle');
     if (kidsToggle) {
         if (db && db.kidsMode) {
-            kidsToggle.style.color = '#54A0FF';
+            kidsToggle.style.background = '#34C759'; // Green when ON
         } else {
-            kidsToggle.style.color = 'var(--text-muted)';
+            kidsToggle.style.background = '#FF3B30'; // Red when OFF
         }
     }
 }
@@ -2843,6 +2843,21 @@ function renderTimeline(container) {
         });
         html += `</div>`;
     }
+
+    // Social Links Footer
+    html += `
+        <div class="dash-social-footer animate-fade-in" style="animation-delay: 0.5s; text-align:center; margin-top:2.5rem; padding-bottom:1rem; border-top:1px solid var(--glass-border); padding-top:1.5rem;">
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.8rem; font-weight:600;">${t('Seko mums:', 'Follow us:')}</p>
+            <div style="display:flex; justify-content:center; gap:15px;">
+                <a href="https://instagram.com/frameddate" target="_blank" style="display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:var(--glass-panel); color:var(--text-main); font-size:1.3rem; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://tiktok.com/@frameddate" target="_blank" style="display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:var(--glass-panel); color:var(--text-main); font-size:1.3rem; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+            </div>
+        </div>
+    `;
 
     container.innerHTML = html;
 
