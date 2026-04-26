@@ -6,8 +6,8 @@
     "start": "http-server .",
     "build": "echo 'No build step required'"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "dependencies": {
     "http-server": "^14.1.1"
-  }
+  },
+  "devDependencies": {}
 }
