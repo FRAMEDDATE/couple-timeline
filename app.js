@@ -427,7 +427,7 @@ window.joinCouple = async (directCode = null) => {
         console.log("✅ Joined game successfully");
     } catch (err) {
         console.error("❌ Join error details:", err);
-        alert(t("Kļūda pievienojoties!", "Error joining!"));
+        alert(t("Kļūda pievienojoties!", "Error joining!") + "\n" + err.message);
     } finally {
         hideLoading();
     }
@@ -1340,36 +1340,30 @@ window.disconnectCouple = async () => {
     showLoading(t("Atvienojas...", "Disconnecting..."));
     try {
         const gameId = db.auth.gameId;
-        const updates = {};
-        
-        // 1. Remove gameId from current user
-        updates[`users/${myUID}/session/gameId`] = null;
-        updates[`users/${myUID}/session/connected`] = false;
-        updates[`users/${myUID}/session/role`] = null;
-
-        // 2. Fetch partner and remove gameId from them too
-        const gameSnap = await firebaseDB.ref(`games/${gameId}/metadata`).once('value');
-        if (gameSnap.exists()) {
-            const meta = gameSnap.val();
-            const partnerUid = (meta.hostUid === myUID) ? meta.clientUid : meta.hostUid;
-            if (partnerUid) {
-                updates[`users/${partnerUid}/session/gameId`] = null;
-                updates[`users/${partnerUid}/session/connected`] = false;
-                updates[`users/${partnerUid}/session/role`] = null;
-            }
-            
-            // 3. Mark game as inactive
-            updates[`games/${gameId}/metadata/status`] = 'inactive';
+        if (gameId) {
+            // Mark game as inactive if we have permission
+            await firebaseDB.ref(`games/${gameId}/metadata/status`).set('inactive').catch(e => console.warn("Could not mark game inactive", e));
         }
 
-        await firebaseDB.ref().update(updates);
-        
+        // Clear ONLY our own user session
+        if (myUID) {
+            await firebaseDB.ref(`users/${myUID}/session`).update({
+                gameId: null,
+                connected: false,
+                role: null,
+                onboardingFinished: false
+            });
+        }
+
+        // Reset local state
         db.auth.gameId = null;
         db.auth.connected = false;
         db.auth.role = null;
-        saveDBLocal();
+        db.auth.linked = false;
+        db.linkCode = null;
         
-        location.reload();
+        saveDBLocal();
+        setTimeout(() => location.reload(), 500);
     } catch (err) {
         console.error("❌ Disconnect Error:", err);
         alert(t("Kļūda atvienojoties!", "Error disconnecting!"));
