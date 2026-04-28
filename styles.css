@@ -1319,6 +1319,7 @@ input[type="datetime-local"].input-field::-webkit-date-and-time-value {
 .dash-stat-col h2 {
     font-size: 2.6rem;
     font-weight: 900;
+    font-family: 'Arial Black', Impact, system-ui, -apple-system, sans-serif;
     color: white;
     margin-bottom: 0.1rem;
     line-height: 1;
