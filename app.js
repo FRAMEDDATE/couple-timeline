@@ -2711,59 +2711,61 @@ function renderTimeline(container) {
            <input type="file" id="avatar-upload" accept="image/*" data-mode="avatar" onchange="uploadPhoto(this)" style="display:none;">
 
            <div class="dash-hero-card animate-fade-in" style="animation-delay: 0.1s;">
-               <div class="dash-hero-top">
-                   <div class="dash-heart">
-                       <i class="fa-solid fa-heart"></i>
+               <div class="dash-hero-card-inner">
+                   <div class="dash-hero-top">
+                       <div class="dash-heart">
+                           <i class="fa-solid fa-heart"></i>
+                       </div>
+
+                       <div class="dash-stats-grid">
+                           ${db.kidsMode ? `
+                           <div class="dash-stat-col">
+                               <h2>${totalPoints}</h2>
+                               <p>${t('Punkti', 'Points')}</p>
+                           </div>
+                           <div class="dash-stat-col">
+                               <h2>${myCompletedTaskCount}</h2>
+                               <p>${t('Uzdevumi', 'Tasks')}</p>
+                           </div>
+                           <div class="dash-stat-col">
+                               <h2>${db.magnets ? db.magnets.length : 0}</h2>
+                               <p>${t('Magnēti', 'Magnets')}</p>
+                           </div>
+                           ` : `
+                           <div class="dash-stat-col">
+                               <h2>${timeStats.years}</h2>
+                               <p>${t('Gadi', 'Years')}</p>
+                           </div>
+                           <div class="dash-stat-col">
+                               <h2>${timeStats.months}</h2>
+                               <p>${t('Mēneši', 'Months')}</p>
+                           </div>
+                           <div class="dash-stat-col">
+                               <h2>${timeStats.days}</h2>
+                               <p>${t('Dienas', 'Days')}</p>
+                           </div>
+                           `}
+                       </div>
                    </div>
 
-                   <div class="dash-stats-grid">
-                       ${db.kidsMode ? `
-                       <div class="dash-stat-col">
-                           <h2>${totalPoints}</h2>
-                           <p>${t('Punkti', 'Points')}</p>
+                   <div class="dash-hero-bottom">
+                       <div class="dash-progress-title">${db.kidsMode ? t('Sasniegumi', 'Achievements') : t('Sasniegtie mērķi', 'Achieved goals')}</div>
+                       <div class="dash-progress-wrap">
+                           <div class="dash-progress-bar">
+                               <div class="dash-progress-fill" style="width: ${scr.percentage}%; background: ${scr.color};"></div>
+                           </div>
+                           <div class="dash-progress-val">${scr.percentage}%</div>
                        </div>
-                       <div class="dash-stat-col">
-                           <h2>${myCompletedTaskCount}</h2>
-                           <p>${t('Uzdevumi', 'Tasks')}</p>
-                       </div>
-                       <div class="dash-stat-col">
-                           <h2>${db.magnets ? db.magnets.length : 0}</h2>
-                           <p>${t('Magnēti', 'Magnets')}</p>
-                       </div>
-                       ` : `
-                       <div class="dash-stat-col">
-                           <h2>${timeStats.years}</h2>
-                           <p>${t('Gadi', 'Years')}</p>
-                       </div>
-                       <div class="dash-stat-col">
-                           <h2>${timeStats.months}</h2>
-                           <p>${t('Mēneši', 'Months')}</p>
-                       </div>
-                       <div class="dash-stat-col">
-                           <h2>${timeStats.days}</h2>
-                           <p>${t('Dienas', 'Days')}</p>
-                       </div>
-                       `}
-                   </div>
-               </div>
 
-               <div class="dash-hero-bottom">
-                   <div class="dash-progress-title">${db.kidsMode ? t('Sasniegumi', 'Achievements') : t('Sasniegtie mērķi', 'Achieved goals')}</div>
-                   <div class="dash-progress-wrap">
-                       <div class="dash-progress-bar">
-                           <div class="dash-progress-fill" style="width: ${scr.percentage}%; background: ${scr.color};"></div>
+                       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                           <div class="dash-progress-title" style="margin-bottom:0;">${db.kidsMode ? t('Bērna apņemšanās', 'Child commitments') : t('Attiecību Mērķi', 'Relationship Goals')}</div>
+                           <div onclick="window.manageGoals()" style="color:#FF5A7E; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                               <i class="fa-solid fa-pen"></i> ${t('Pārvaldīt', 'Manage')}
+                           </div>
                        </div>
-                       <div class="dash-progress-val">${scr.percentage}%</div>
-                   </div>
-
-                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
-                       <div class="dash-progress-title" style="margin-bottom:0;">${db.kidsMode ? t('Bērna apņemšanās', 'Child commitments') : t('Attiecību Mērķi', 'Relationship Goals')}</div>
-                       <div onclick="window.manageGoals()" style="color:#FF5A7E; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:5px;">
-                           <i class="fa-solid fa-pen"></i> ${t('Pārvaldīt', 'Manage')}
+                       <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                           ${goalsHtml}
                        </div>
-                   </div>
-                   <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                       ${goalsHtml}
                    </div>
                </div>
            </div>

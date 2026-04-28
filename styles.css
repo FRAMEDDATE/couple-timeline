@@ -1174,19 +1174,55 @@ input[type="date"].input-field::-webkit-date-and-time-value {
     transform: scale(0.9);
 }
 
+@keyframes spin-glow {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 .dash-hero-card {
     position: relative;
     border-radius: 28px;
-    padding: 0;
-    box-shadow: 0 20px 60px rgba(255, 90, 126, 0.18), 0 4px 20px rgba(0,0,0,0.06);
+    padding: 2px; /* Border width */
     margin-bottom: 2rem;
     overflow: hidden;
+    /* Transparent background to show pseudo-element glow */
+    background: transparent;
+    box-shadow: 0 20px 60px rgba(255, 90, 126, 0.18), 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.dash-hero-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    /* Subtle glow in light mode, maybe a soft pink/purple sweep */
+    background: conic-gradient(transparent, transparent, transparent, rgba(255, 90, 126, 0.5));
+    animation: spin-glow 4s linear infinite;
+    z-index: 0;
+}
+
+.dash-hero-card-inner {
+    position: relative;
+    z-index: 1;
+    border-radius: 26px; /* Slightly smaller than parent */
+    overflow: hidden;
     background: linear-gradient(145deg, #fff5f7 0%, #fff 50%, #f5f0ff 100%);
+    height: 100%;
 }
 
 .dark-mode .dash-hero-card {
-    background: linear-gradient(145deg, #2a1520 0%, #1a1a2e 50%, #16213e 100%);
     box-shadow: 0 20px 60px rgba(255, 90, 126, 0.12), 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.dark-mode .dash-hero-card::before {
+    /* Salmon pink glowing edge in dark mode */
+    background: conic-gradient(transparent, transparent, transparent, #FFA07A, #FF8FA3); 
+}
+
+.dark-mode .dash-hero-card-inner {
+    background: linear-gradient(145deg, #2a1520 0%, #1a1a2e 50%, #16213e 100%);
 }
 
 .dash-hero-top {
