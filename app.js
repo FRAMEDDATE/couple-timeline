@@ -1053,6 +1053,21 @@ async function setupSocialUser(user) {
 }
 
 function handlePostLogin() {
+    const pendingJoin = localStorage.getItem('pendingJoin');
+    if (pendingJoin) {
+        localStorage.removeItem('pendingJoin');
+        // Go to onboarding first so user sees the pairing screen, then auto-join
+        if (!db.auth.linked && !db.auth.onboardingFinished) {
+            currentRoute = 'onboarding';
+            navigate('onboarding');
+            // Give onboarding time to render then auto-join
+            setTimeout(() => window.autoJoin(pendingJoin), 800);
+        } else {
+            window.autoJoin(pendingJoin);
+        }
+        return;
+    }
+
     let target = 'timeline';
     // Logic: if not connected and haven't finished onboarding, show onboarding
     if (db.auth && !db.auth.connected && !db.auth.onboardingFinished) {
@@ -1061,14 +1076,8 @@ function handlePostLogin() {
 
     currentRoute = target;
     updateSharedUI();
-    
+
     if (typeof checkQRMagnet === 'function') checkQRMagnet();
-    const pendingJoin = localStorage.getItem('pendingJoin');
-    if (pendingJoin) {
-        localStorage.removeItem('pendingJoin');
-        window.autoJoin(pendingJoin);
-        return;
-    }
     navigate(target);
 }
 
@@ -1764,13 +1773,14 @@ window.handleDeepLinks = () => {
     const joinCode = params.get('join');
     if (joinCode) {
         window.history.replaceState({}, document.title, window.location.pathname);
-        if (!db.auth) {
-            localStorage.setItem('pendingJoin', joinCode);
+        // Always store the code for later use after login/register
+        localStorage.setItem('pendingJoin', joinCode);
+        if (!db.auth || !db.auth.uid) {
+            // Not logged in — show auth/register page
+            navigate('auth');
         } else if (!db.auth.linked) {
+            // Logged in but not paired — auto join
             setTimeout(() => {
-                if (document.getElementById('joinCodeInput')) {
-                    document.getElementById('joinCodeInput').value = joinCode;
-                }
                 window.autoJoin(joinCode);
             }, 500);
         }
