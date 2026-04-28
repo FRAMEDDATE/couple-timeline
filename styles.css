@@ -1197,9 +1197,9 @@ input[type="date"].input-field::-webkit-date-and-time-value {
     left: 50%;
     width: 200%;
     height: 200%;
-    /* Subtle glow in light mode, maybe a soft pink/purple sweep */
-    background: conic-gradient(transparent, transparent, transparent, rgba(255, 90, 126, 0.5));
-    animation: spin-glow 4s linear infinite;
+    /* Comet tail effect for light mode */
+    background: conic-gradient(from 0deg, transparent 70%, rgba(255, 90, 126, 0.2) 90%, rgba(255, 90, 126, 0.9) 100%);
+    animation: spin-glow 10s linear infinite;
     z-index: 0;
 }
 
@@ -1217,8 +1217,8 @@ input[type="date"].input-field::-webkit-date-and-time-value {
 }
 
 .dark-mode .dash-hero-card::before {
-    /* Salmon pink glowing edge in dark mode */
-    background: conic-gradient(transparent, transparent, transparent, #FFA07A, #FF8FA3); 
+    /* Sharp salmon pink glowing edge in dark mode */
+    background: conic-gradient(from 0deg, transparent 70%, rgba(255, 160, 122, 0.15) 90%, #FFA07A 100%); 
 }
 
 .dark-mode .dash-hero-card-inner {
