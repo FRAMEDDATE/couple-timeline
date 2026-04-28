@@ -1932,33 +1932,12 @@ window.toggleKidsMode = () => {
 };
 
 // Automatic expiry penalty checker
-function checkExpiredTasks() {
-    if (!db || !db.auth || !db.coupons) return;
-    const now = new Date();
-    let changed = false;
-    db.coupons.forEach(c => {
-        if (c.status === 'accepted' && new Date(c.expiry) < now) {
-            const penalty = c.penalty || Math.round((c.points || 50) * 0.5);
-            c.status = 'expired';
-            db.auth.partnerPoints = Math.max(0, (db.auth.partnerPoints || 0) - penalty);
-            db.history.unshift({
-                id: Date.now() + Math.random(),
-                date: new Date().toISOString(),
-                title: t(`Sods: uzdevums netika izpildīts laikā – "${c.title}"`, `Penalty: task not completed in time – "${c.title}"`),
-                points: -penalty
-            });
-            changed = true;
-        }
-    });
-    if (changed) { saveDB(); if (currentRoute === 'coupons') navigate('coupons'); }
-}
-setInterval(checkExpiredTasks, 60000);
-
 function renderCoupons(container) {
     if (!db || !db.auth) return;
     window.couponsTab = window.couponsTab || 'received';
     const myEmail = db.auth.email;
     const activeCoupons = db.coupons.filter(c => c.status === 'pending' || c.status === 'accepted');
+    const completedCoupons = db.coupons.filter(c => c.status === 'done' || c.status === 'failed' || c.status === 'expired');
     const sentCoupons = activeCoupons.filter(c => c.sender === myEmail);
     const receivedCoupons = activeCoupons.filter(c => c.sender !== myEmail);
 
@@ -1972,11 +1951,14 @@ function renderCoupons(container) {
         </div>
 
         <div style="display:flex; background:var(--bg-panel); border-radius:20px; padding:4px; margin-bottom:2rem; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
-            <div onclick="window.couponsTab='received'; navigate('coupons');" style="flex:1; text-align:center; padding:12px; border-radius:16px; font-weight:800; font-size:0.95rem; cursor:pointer; transition:0.3s; ${window.couponsTab === 'received' ? 'background:linear-gradient(135deg,#FF5A7E,#C084FC); color:white; box-shadow:0 4px 10px rgba(255,90,126,0.3);' : 'background:transparent; color:#A3A3A3;'}">
+            <div onclick="window.couponsTab='received'; navigate('coupons');" style="flex:1; text-align:center; padding:10px 4px; border-radius:16px; font-weight:800; font-size:0.85rem; cursor:pointer; transition:0.3s; ${window.couponsTab === 'received' ? 'background:linear-gradient(135deg,#FF5A7E,#C084FC); color:white; box-shadow:0 4px 10px rgba(255,90,126,0.3);' : 'background:transparent; color:#A3A3A3;'}">
                 ${t('Saņemtie', 'Received')} (${receivedCoupons.length})
             </div>
-            <div onclick="window.couponsTab='sent'; navigate('coupons');" style="flex:1; text-align:center; padding:12px; border-radius:16px; font-weight:800; font-size:0.95rem; cursor:pointer; transition:0.3s; ${window.couponsTab === 'sent' ? 'background:linear-gradient(135deg,#FF5A7E,#C084FC); color:white; box-shadow:0 4px 10px rgba(255,90,126,0.3);' : 'background:transparent; color:#A3A3A3;'}">
+            <div onclick="window.couponsTab='sent'; navigate('coupons');" style="flex:1; text-align:center; padding:10px 4px; border-radius:16px; font-weight:800; font-size:0.85rem; cursor:pointer; transition:0.3s; ${window.couponsTab === 'sent' ? 'background:linear-gradient(135deg,#FF5A7E,#C084FC); color:white; box-shadow:0 4px 10px rgba(255,90,126,0.3);' : 'background:transparent; color:#A3A3A3;'}">
                 ${t('Nosūtītie', 'Sent')} (${sentCoupons.length})
+            </div>
+            <div onclick="window.couponsTab='completed'; navigate('coupons');" style="flex:1; text-align:center; padding:10px 4px; border-radius:16px; font-weight:800; font-size:0.85rem; cursor:pointer; transition:0.3s; ${window.couponsTab === 'completed' ? 'background:linear-gradient(135deg,#34C759,#30D158); color:white; box-shadow:0 4px 10px rgba(52,199,89,0.3);' : 'background:transparent; color:#A3A3A3;'}">
+                ${t('Pabeigtie', 'Completed')} (${completedCoupons.length})
             </div>
         </div>
     `;
@@ -2050,7 +2032,64 @@ function renderCoupons(container) {
     const isSentContext = window.couponsTab === 'sent';
 
     html += `<div class="coupons-list" style="margin-bottom: 4rem;">`;
-    if (activeList.length === 0) {
+
+    if (window.couponsTab === 'completed') {
+        if (completedCoupons.length === 0) {
+            html += `
+            <div style="text-align:center; margin-top:4rem; color:#D1D1D6;">
+                <i class="fa-solid fa-trophy" style="font-size:5rem; margin-bottom:1.5rem; opacity:0.4;"></i>
+                <h3 style="color:#A3A3A3; font-size:1.2rem; font-weight:800; margin-bottom:0.8rem;">${t('Nav pabeigtu uzdevumu', 'No completed tasks yet')}</h3>
+                <p style="font-size:0.95rem; color:#C7C7CC; max-width:80%; margin:0 auto; font-weight:500;">${t('Pabeigtie uzdevumi parādīsies šeit', 'Completed tasks will appear here')}</p>
+            </div>`;
+        } else {
+            // Summary header
+            const totalEarned = completedCoupons.filter(c => c.status === 'done').reduce((s, c) => s + (c.points || 50), 0);
+            const totalLost   = completedCoupons.filter(c => c.status === 'failed' || c.status === 'expired').reduce((s, c) => s + (c.penalty || Math.round((c.points||50)*0.5)), 0);
+            html += `
+            <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
+                <div style="flex:1; background:rgba(52,199,89,0.1); border:1.5px solid rgba(52,199,89,0.25); border-radius:16px; padding:14px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:900; color:#34C759;">+${totalEarned}</div>
+                    <div style="font-size:0.72rem; font-weight:700; color:#34C759; text-transform:uppercase; letter-spacing:0.05em;">${t('Nopelnīts', 'Earned')}</div>
+                </div>
+                <div style="flex:1; background:rgba(255,59,48,0.08); border:1.5px solid rgba(255,59,48,0.2); border-radius:16px; padding:14px; text-align:center;">
+                    <div style="font-size:1.6rem; font-weight:900; color:#ff3b30;">-${totalLost}</div>
+                    <div style="font-size:0.72rem; font-weight:700; color:#ff3b30; text-transform:uppercase; letter-spacing:0.05em;">${t('Zaudēts', 'Lost')}</div>
+                </div>
+            </div>`;
+
+            // Completed cards
+            completedCoupons.forEach(c => {
+                const catMeta = TASK_CATEGORIES.find(x => x.id === c.type) || TASK_CATEGORIES[1];
+                const isDone = c.status === 'done';
+                const statusColor = isDone ? '#34C759' : '#ff3b30';
+                const statusIcon  = isDone ? 'fa-check-circle' : 'fa-times-circle';
+                const statusLabel = isDone ? t('Izpildīts', 'Completed') : t('Neizpildīts', 'Failed');
+                const ptLabel     = isDone ? `+${c.points || 50}` : `-${c.penalty || Math.round((c.points||50)*0.5)}`;
+                const ptColor     = isDone ? '#34C759' : '#ff3b30';
+                html += `
+                <div class="glass-panel coupon-card" style="position:relative; border-left: 4px solid ${statusColor}; overflow:hidden; opacity:0.85;">
+                    <div style="position:absolute; top:0; left:0; right:0; bottom:0; background:${catMeta.bg}; pointer-events:none; border-radius:inherit;"></div>
+                    <div style="position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid ${statusIcon}" style="color:${statusColor}; font-size:1.1rem;"></i>
+                                <span style="font-size:0.78rem; font-weight:700; color:${statusColor}; text-transform:uppercase; letter-spacing:0.04em;">${statusLabel}</span>
+                            </div>
+                            <div style="background:${isDone ? 'rgba(52,199,89,0.15)' : 'rgba(255,59,48,0.12)'}; color:${ptColor}; font-weight:800; font-size:0.85rem; padding:4px 10px; border-radius:20px;">
+                                ${ptLabel} ${t('pt', 'pts')}
+                            </div>
+                        </div>
+                        <h3 class="coupon-title" style="margin:0 0 4px;">${c.title}</h3>
+                        <p class="coupon-task" style="margin:0 0 6px; font-size:0.85rem; color:var(--text-muted);">${c.task || ''}</p>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">
+                            <i class="fa-regular fa-calendar"></i>
+                            ${t('Termiņš bija:', 'Deadline was:')} ${new Date(c.expiry).toLocaleDateString(db.lang === 'en' ? 'en-US' : 'lv-LV', {year:'numeric',month:'short',day:'numeric'})}
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+    } else if (activeList.length === 0) {
         const emptyText = window.couponsTab === 'received'
             ? t('Nav saņemto uzdevumu', 'No received tasks')
             : t('Nav nosūtīto uzdevumu', 'No sent tasks');
@@ -2069,6 +2108,7 @@ function renderCoupons(container) {
     html += `</div>`;
     container.innerHTML = html;
 }
+
 
 window.selectedTaskCat = 'romance';
 window.dismissedTemplates = new Set();
