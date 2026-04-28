@@ -441,6 +441,24 @@ input[type="date"].input-field::-webkit-date-and-time-value {
     text-align: center;
 }
 
+/* Datetime Picker Fixes (iOS overflow) */
+input[type="datetime-local"].input-field {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    /* Reduce right padding to give text maximum space */
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+input[type="datetime-local"].input-field::-webkit-date-and-time-value {
+    text-align: left;
+    /* Prevent internal safari container from expanding infinitely */
+    width: 100%;
+    margin: 0;
+}
+
 /* Premium Apple Header */
 .app-header {
     height: var(--header-height);
