@@ -2137,39 +2137,26 @@ window.resetTemplates = () => {
 };
 
 function renderTemplatesForCat(catId, container) {
-    let cats = db && db.kidsMode ? KIDS_CATEGORIES : TASK_CATEGORIES;
     let tpls = db && db.kidsMode ? KIDS_CATEGORY_TEMPLATES : CATEGORY_TEMPLATES;
     const templates = tpls[catId] || [];
-    const catColor = cats.find(x => x.id === catId)?.color || '#FF5A7E';
-    const visible = templates.filter((_, i) => !window.dismissedTemplates.has(`${catId}:${i}`));
-
-    if (visible.length === 0) {
-        container.innerHTML = `
-            <div style="width:100%; padding:10px 0; text-align:center;">
-                <span style="font-size:0.8rem; color:var(--text-muted);">${t('Visi varianti noņemti.', 'All options removed.')}</span>
-                <span onclick="resetTemplates()" style="font-size:0.8rem; color:${catColor}; font-weight:700; cursor:pointer; margin-left:8px;">${t('Atjaunot', 'Restore')}</span>
-            </div>`;
+    
+    if (templates.length === 0) {
+        container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted); padding:10px;">${t('Nav sagatavju šai kategorijai', 'No templates for this category')}</div>`;
         return;
     }
 
-    const preamble = visible.map(tmp => {
-        const realIdx = templates.indexOf(tmp);
+    let optionsHtml = templates.map((tmp, idx) => {
         const lvEsc = tmp.lv.replace(/'/g, "\\'");
         const enEsc = tmp.en.replace(/'/g, "\\'");
-        return `<div style="position:relative; padding:8px 34px 8px 14px; background:var(--bg-panel); border:1.5px solid rgba(0,0,0,0.07); border-radius:14px; font-size:0.8rem; font-weight:600; cursor:pointer; color:var(--text-main); transition:0.2s; display:inline-flex; align-items:center; gap:6px;"
-                 onclick="applyTaskTemplate('${lvEsc}', '${enEsc}', ${tmp.points})"
-                 onmouseover="this.style.borderColor='${catColor}'" onmouseout="this.style.borderColor='rgba(0,0,0,0.07)'"
-            >${t(tmp.lv, tmp.en)} <span style="color:#FF9500; font-weight:800;">+${tmp.points}</span>
-            <span onclick="dismissTemplate('${catId}', ${realIdx}, event)"
-                  style="position:absolute; right:7px; top:50%; transform:translateY(-50%); width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,0.08); display:flex; align-items:center; justify-content:center; font-size:0.65rem; color:var(--text-muted); cursor:pointer; transition:0.2s;"
-                  onmouseover="this.style.background='rgba(255,59,48,0.2)'; this.style.color='#ff3b30'" onmouseout="this.style.background='rgba(0,0,0,0.08)'; this.style.color='var(--text-muted)'"
-            ><i class="fa-solid fa-xmark"></i></span></div>`;
+        return `<option value="${idx}" data-lv="${lvEsc}" data-en="${enEsc}" data-points="${tmp.points}">${t(tmp.lv, tmp.en)} (+${tmp.points}pt)</option>`;
     }).join('');
 
-    const hasAnyDismissed = templates.some((_, i) => window.dismissedTemplates.has(`${catId}:${i}`));
-    const resetBtn = hasAnyDismissed ? `<div onclick="resetTemplates()" style="display:inline-flex; align-items:center; gap:5px; padding:8px 14px; border:1.5px dashed rgba(0,0,0,0.12); border-radius:14px; font-size:0.78rem; font-weight:700; cursor:pointer; color:${catColor}; transition:0.2s;" onmouseover="this.style.background='${catColor}18'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-rotate-left"></i> ${t('Atjaunot sākotnējos', 'Restore defaults')}</div>` : '';
-
-    container.innerHTML = preamble + resetBtn;
+    container.innerHTML = `
+        <select class="input-field" style="font-size:0.85rem; padding:12px; cursor:pointer;" onchange="const opt=this.options[this.selectedIndex]; if(this.value !== '') window.applyTaskTemplate(opt.dataset.lv, opt.dataset.en, parseInt(opt.dataset.points))">
+            <option value="">-- ${t('Izvēlies sagatavi', 'Choose a template')} --</option>
+            ${optionsHtml}
+        </select>
+    `;
 }
 
 window.selectTaskCat = (catId) => {
@@ -2206,20 +2193,20 @@ window.openSendTaskModal = () => {
     `).join('');
 
     showOverlay(`
-        <h3 class="modal-title" style="margin-bottom:1.5rem; text-align:center; background:linear-gradient(135deg,#FF5A7E,#C084FC); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
-            <i class="fa-solid fa-list-check" style="-webkit-text-fill-color:#FF5A7E; margin-right:8px;"></i> ${t('Nosūtīt Uzdevumu', 'Send Task')}
+        <h3 class="modal-title" style="margin-bottom:2.5rem; text-align:center; color:#FFA07A; font-weight:900; letter-spacing:-0.5px;">
+            <i class="fa-solid fa-list-check" style="margin-right:10px; opacity:0.8;"></i> ${t('Nosūtīt Uzdevumu', 'Send Task')}
         </h3>
 
-        <div style="margin-bottom:1.2rem;">
-            <label class="input-label" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:1px; margin-bottom:10px;">${t('Kategorija', 'Category')}</label>
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+        <div style="margin-bottom:1.5rem; padding-top: 0.5rem;">
+            <label class="input-label" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:1px; margin-bottom:12px;">${t('Kategorija', 'Category')}</label>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
                 ${catGrid}
             </div>
         </div>
 
-        <div style="margin-bottom:1.5rem;">
-            <label class="input-label" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:1px; margin-bottom:8px;">${t('Ātrās sagataves', 'Quick Templates')}</label>
-            <div id="quick-templates" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        <div style="margin-bottom:1.8rem;">
+            <label class="input-label" style="text-transform:uppercase; font-size:0.72rem; letter-spacing:1px; margin-bottom:10px;">${t('Ātrās sagataves', 'Quick Templates')}</label>
+            <div id="quick-templates"></div>
             <div style="margin-top:10px; background:linear-gradient(135deg, rgba(255,90,126,0.06), rgba(192,132,252,0.06)); border:1.5px solid rgba(255,90,126,0.15); border-radius:16px; padding:14px 14px 10px;">
                 <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
                     <i class="fa-solid fa-pen" style="color:#FF5A7E; font-size:0.8rem;"></i>
