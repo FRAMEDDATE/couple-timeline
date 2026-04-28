@@ -1208,7 +1208,7 @@ input[type="date"].input-field::-webkit-date-and-time-value {
     z-index: 1;
     border-radius: 26px; /* Slightly smaller than parent */
     overflow: hidden;
-    background: linear-gradient(145deg, #fff5f7 0%, #fff 50%, #f5f0ff 100%);
+    background: var(--bg-panel);
     height: 100%;
 }
 
@@ -1222,7 +1222,7 @@ input[type="date"].input-field::-webkit-date-and-time-value {
 }
 
 .dark-mode .dash-hero-card-inner {
-    background: linear-gradient(145deg, #2a1520 0%, #1a1a2e 50%, #16213e 100%);
+    background: var(--bg-panel);
 }
 
 .dash-hero-top {
